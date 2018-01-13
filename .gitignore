@@ -10,6 +10,8 @@ train
 notes.txt
 stream_record.txt
 train_eval.txt
+cpu_usage.txt
+mem_usage.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
