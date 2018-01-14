@@ -18,7 +18,7 @@ Python 2 or 3
         psutil
 TensorFlow
 OpenCV3
-Requirements from [TensorFlow Object Detection API] (https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
+Requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
 
 # Roadmap
 Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
