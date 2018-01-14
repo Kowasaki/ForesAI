@@ -21,13 +21,13 @@ OpenCV3
 Requirements from [TensorFlow Object Detection API] (https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
 
 # Roadmap
-*Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
+Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
 
 - Nvidia GPU usage monitoring
 - ROS integration
 
 # Instructions
-*Currently, ForesAI only works with TensorFlow models that are trained using the [TensorFlow Object Detection API] (https://github.com/tensorflow/models/tree/master/research/object_detection). I would like to support other libraries as well so let me know if you want to help in this endeaver!
+Currently, ForesAI only works with TensorFlow models that are trained using the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I would like to support other libraries as well so let me know if you want to help in this endeaver!
 
 Please take a look at all the *_demo.py scripts for how to use your respective camera hardware. My suggestion is to start by running the webcam_demo from your laptop to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing.
 
