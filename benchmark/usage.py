@@ -1,5 +1,20 @@
+import time
 import os
 import psutil
+
+class Timer:
+    def __init__(self):
+        self.init_time = time.time()
+
+    def get_elapsed_time(self):
+        curr = time.time()
+        self.elapsed = curr - self.init_time
+        return self.elapsed
+    
+    def print_elapsed_time(self):
+        elapsed = self.get_elapsed_time()
+        print("Time: {} seconds elapsed".format(self.elapsed))
+        return elapsed
 
 def get_cpu_usage():
     return psutil.cpu_percent()

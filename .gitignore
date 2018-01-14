@@ -8,10 +8,10 @@ train
 *.avi
 *.png
 notes.txt
+record.txt
 stream_record.txt
 train_eval.txt
-cpu_usage.txt
-mem_usage.txt
+*_usage.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

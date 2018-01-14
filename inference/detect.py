@@ -3,7 +3,7 @@ import numpy as np
 import os
 import tensorflow as tf
 
-from benchmark.usage import get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage
+from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
@@ -15,10 +15,11 @@ def load_image_into_numpy_array_bw(image):
     (im_width, im_height, _) = image.shape
     return np.array(image.getdata()).reshape((im_height, im_width, 3)).astype(np.uint8)
 
-def show_usage(cpu_usage_dump, mem_usage_dump):
+def show_usage(cpu_usage_dump, mem_usage_dump, time_usage_dump, timer):
     cpu_usage_dump += str(print_cpu_usage()) + '\n'
     mem_usage_dump += str(print_mem_usage()) + '\n'
-    return cpu_usage_dump, mem_usage_dump
+    time_usage_dump += str(timer.print_elapsed_time()) + '\n'
+    return cpu_usage_dump, mem_usage_dump, time_usage_dump
 
 def graph_prep(NUM_CLASSES,
                PATH_TO_CKPT,
@@ -44,21 +45,6 @@ def detect_video(video_path,
                  NUM_CLASSES,
                  PATH_TO_CKPT,
                  pbtxt):
-
-    # # Load a (frozen) Tensorflow model into memory.
-    # detection_graph = tf.Graph()
-    # with detection_graph.as_default():
-    #     od_graph_def = tf.GraphDef()
-    #     with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
-    #         serialized_graph = fid.read()
-    #         od_graph_def.ParseFromString(serialized_graph)
-    #         tf.import_graph_def(od_graph_def, name='')
-
-    # # Loading Label Map
-    # label_map = label_map_util.load_labelmap(pbtxt)
-    # categories = label_map_util.convert_label_map_to_categories(label_map, 
-    #     max_num_classes=NUM_CLASSES, use_display_name=True)
-    # category_index = label_map_util.create_category_index(categories)
 
     detection_graph, label_map, categories, category_index = graph_prep(NUM_CLASSES,PATH_TO_CKPT,pbtxt)
 
@@ -132,20 +118,11 @@ def detect_video(video_path,
                         topleft_pts.append(topleft)
                         widths.append(width)
                         heights.append(height)
-
-                # # assign real-world heights using obj class
-                # meter_heights = assign_heights(labels)
-
-                # x_mins, x_maxs, y_mins, y_maxs, zs = convert_pixel_to_metric(r, c, topleft_pts, 
-                #                                         meter_heights[:len(heights)], widths, heights)
-
-                # for i in range(len(zs)):
-                #     record.write(str(x_mins[i])+ "," + str(x_maxs[i])+ "," + str(y_mins[i])+ "," + 
-                #         str(y_maxs[i])+ "," + str(zs[i])+ "\n")       
         
                 for i in range(len(topleft_pts)):
                     record.write(str(topleft_pts[i][0])+ "," + str(topleft_pts[i][1])+ "," + str(heights[i])+ "," + 
                         str(widths[i]) + "\n")  
+
                 # Visualization of the results of a detection.
                 curr_frame = curr_frame[...,::-1] #flip bgr back to rgb (Thanks OpenCV)
                 drawn_img = vis_util.visualize_boxes_and_labels_on_image_array(
@@ -165,8 +142,7 @@ def detect_video(video_path,
     print("Result: {} frames".format(count))
 
     trackedVideo.release()
-
-
+    
 
 def detect_camera_stream(device_path,
                          show_stream,
@@ -178,10 +154,13 @@ def detect_camera_stream(device_path,
     
     cpu_usage_dump = ""
     mem_usage_dump = ""
+    time_usage_dump = ""
 
     if usage_check:
+        timer = Timer()
         print("Initial startup")
-        cpu_usage_dump, mem_usage_dump = show_usage(cpu_usage_dump, mem_usage_dump)
+        cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
+            mem_usage_dump, time_usage_dump, timer)
 
     detection_graph, label_map, categories, category_index = graph_prep(NUM_CLASSES,PATH_TO_CKPT,pbtxt)
     vid = cv2.VideoCapture(device_path)
@@ -234,7 +213,8 @@ def detect_camera_stream(device_path,
 
                 if usage_check:
                     print("Frame {}".format(count))
-                    cpu_usage_dump, mem_usage_dump = show_usage(cpu_usage_dump, mem_usage_dump)
+                    cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
+                        mem_usage_dump, time_usage_dump, timer)
 
                 if write_output:
                     record.write(str(count)+"\n")
@@ -284,11 +264,14 @@ def detect_camera_stream(device_path,
                 count += 1
 
     if usage_check:
+        print("Total Time elapsed: {} seconds".format(timer.get_elapsed_time()))
         with open("cpu_usage.txt", "w") as c:
             c.write(cpu_usage_dump)
         with open("mem_usage.txt", "w") as m:
             m.write(mem_usage_dump)
-    
+        with open("time_usage.txt", "w") as t:
+            t.write(time_usage_dump) 
+
     vid.release()
     cv2.destroyAllWindows()
 
