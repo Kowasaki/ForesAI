@@ -1,4 +1,5 @@
 import cv2
+import logging
 import numpy as np
 import os
 import tensorflow as tf
@@ -6,6 +7,9 @@ import tensorflow as tf
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage
 from tf_object_detection.utils import label_map_util
 from tf_object_detection.utils import visualization_utils as vis_util
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def load_image_into_numpy_array_color(image):
     (im_width, im_height) = image.size
@@ -55,7 +59,7 @@ def detect_video(video_path,
         
     c = int(vid.get(3))  
     r = int(vid.get(4)) 
-    # print(c,r)
+    logger.debug("Frame width: {} height: {}".format(r,c))
     trackedVideo = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20.0, (c,r))
 
     record = open("record.txt", "w")
@@ -79,12 +83,12 @@ def detect_video(video_path,
             while(vid.isOpened()):
                 # the array based representation of the image will be used later in order to prepare the
                 # result image with boxes and labels on it.
-                # print("frame {}".format(count))
+                logger.debug("frame {}".format(count))
                 record.write(str(count)+"\n")
                 retval, curr_frame = vid.read()
 
                 if not retval:
-                    print("Video ending at frame {}".format(count))
+                    logger.info("Video ending at frame {}".format(count))
                     break
 
 
@@ -104,7 +108,7 @@ def detect_video(video_path,
 
                 # get boxes that pass the min requirements and their pixel coordinates
                 (r,c,_) = curr_frame.shape
-                # print("image row:{}, col:{}".format(r,c))
+                logger.debug("image row:{}, col:{}".format(r,c))
                 for i in range(len(boxes[0])):
                     if scores[0][i] > 0.5:
                         topleft = (int(r*boxes[0][i][0]),int(c*boxes[0][i][1]))
@@ -139,7 +143,7 @@ def detect_video(video_path,
     vid.release()
     record.close()
 
-    print("Result: {} frames".format(count))
+    logger.debug("Result: {} frames".format(count))
 
     trackedVideo.release()
     
@@ -158,7 +162,7 @@ def detect_camera_stream(device_path,
 
     if usage_check:
         timer = Timer()
-        print("Initial startup")
+        logger.info("Initial startup")
         cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
             mem_usage_dump, time_usage_dump, timer)
 
@@ -170,7 +174,7 @@ def detect_camera_stream(device_path,
         
     c = int(vid.get(3))  
     r = int(vid.get(4)) 
-    # print(c,r)
+    logger.debug("Frame width: {} height: {}".format(r,c))
     if write_output:
         trackedVideo = cv2.VideoWriter('stream.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20.0, (c,r))
         record = open("stream_record.txt", "w")
@@ -194,11 +198,10 @@ def detect_camera_stream(device_path,
             while(vid.isOpened()):
                 # the array based representation of the image will be used later in order to prepare the
                 # result image with boxes and labels on it.
-                # print("frame {}".format(count))
                 retval, curr_frame = vid.read()
 
                 if not retval:
-                    print("Video ending at frame {}".format(count))
+                    logger.info("Video ending at frame {}".format(count))
                     break
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -212,7 +215,7 @@ def detect_camera_stream(device_path,
                     feed_dict={image_tensor: curr_frame_expanded})
 
                 if usage_check:
-                    print("Frame {}".format(count))
+                    logger.info("Frame {}".format(count))
                     cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
                         mem_usage_dump, time_usage_dump, timer)
 
@@ -264,7 +267,7 @@ def detect_camera_stream(device_path,
                 count += 1
 
     if usage_check:
-        print("Total Time elapsed: {} seconds".format(timer.get_elapsed_time()))
+        logger.info("Total Time elapsed: {} seconds".format(timer.get_elapsed_time()))
         with open("cpu_usage.txt", "w") as c:
             c.write(cpu_usage_dump)
         with open("mem_usage.txt", "w") as m:
@@ -275,7 +278,7 @@ def detect_camera_stream(device_path,
     vid.release()
     cv2.destroyAllWindows()
 
-    print("Result: {} frames".format(count))
+    logger.info("Result: {} frames".format(count))
     if write_output:
         record.close()
         trackedVideo.release()

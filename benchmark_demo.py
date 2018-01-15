@@ -7,13 +7,13 @@ pbtxt = "./data/mscoco_label_map.pbtxt"
 
 # device_path, show_stream, write_output, NUM_CLASSES, PATH_TO_CKPT, pbtxt
 # press the "q" key on the display window to exit
-# detect_camera_stream(0,
-#                      True,
-#                      False,
-#                      90,
-#                      ckpt,
-#                      pbtxt,
-#                      usage_check = True)
+detect_camera_stream(0,
+                     True,
+                     False,
+                     90,
+                     ckpt,
+                     pbtxt,
+                     usage_check = True)
 
 # Plot the cpu and memory usage over time. If you have a nvidia gpu put "gpu = True" in the argument
 visualize_benchmark.plot_resource_over_time(".")
