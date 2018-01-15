@@ -24,7 +24,8 @@ Requirements from [TensorFlow Object Detection API](https://github.com/tensorflo
 # Roadmap
 Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
 
-- Nvidia GPU usage monitoring
+- Nvidia Tegra GPU usage monitoring
+- Nvidia NVML GPU usage monitoring 
 - ROS integration
 - Remove dependencies from Object Detection API for inference
 
