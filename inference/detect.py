@@ -4,8 +4,8 @@ import os
 import tensorflow as tf
 
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as vis_util
+from tf_object_detection.utils import label_map_util
+from tf_object_detection.utils import visualization_utils as vis_util
 
 def load_image_into_numpy_array_color(image):
     (im_width, im_height) = image.size
