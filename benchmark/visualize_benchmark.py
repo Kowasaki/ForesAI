@@ -16,6 +16,8 @@ def plot_resource_over_time(path, cpu = True, mem = True, gpu = False):
     time_src = os.path.join(path,"time_usage.txt")
     time_list = parse_benchmark_values(time_src)
 
+    print("{} Second per Frame".format(float(time_list[-1])/float(len(time_list))))
+
     if cpu:
         cpu_src = os.path.join(path,"cpu_usage.txt")
         cpu_list = parse_benchmark_values(cpu_src)

@@ -1,8 +1,8 @@
 # ForesAI
-Lightweight Computer Vision library for using TensorFlow models to perform inference tasks
+Lightweight Computer Vision library for using TensorFlow models to perform inference tasks in embedded AI systems
 
 # Introduction
-Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and software engineering pipelines. ForesAI aims to be the bridge between the two by providing the library along with simple APIs for you to use the machine learning models directly in your software across different platforms with a particular emphasis in robotics. As such, the library aims to minimize resorce usage so that it can run on as many different hardware as possible and leave room for you to build out the rest of the AI system.
+Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and software engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models directly into your software across different platforms. With a particular emphasis on robotics, ForesAI aims to minimize resorce usage so that it can run on as many different hardware as possible and leave room for you to build out the rest of the AI system.
 
 This is a very early work in progress but I am looking for feedback as I want to library to be useful for others as well. Feel free to open an issue or make a pull request as you see fit--I am looking for additional contributors as I continue to build upon the library. 
 
@@ -12,14 +12,14 @@ Currently, All training/evaluation is done via the TensorFlow Object Detection A
 The "tf_object_detection" module contains code that comes directly from [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I will be focused on removing the dependencies on the API for inference bit by bit as I continue to improve upon the efficiency of library
 
 # Requirements
-Python 2 or 3
-    Following packages:
-        numpy
-        psutil
-[protobuf](https://github.com/google/protobuf)
-[TensorFlow](https://www.tensorflow.org/)
-OpenCV3
-Requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
+-Python 2 or 3
+--Following packages:
+---numpy
+---psutil
+-[protobuf](https://github.com/google/protobuf)
+-[TensorFlow](https://www.tensorflow.org/)
+-OpenCV3
+-Requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
 
 # Roadmap
 Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
