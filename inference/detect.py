@@ -5,6 +5,7 @@ import os
 import tensorflow as tf
 
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage
+from inference.box_op import Box, parse_tf_output
 from tf_object_detection.utils import label_map_util
 from tf_object_detection.utils import visualization_utils as vis_util
 
@@ -130,38 +131,17 @@ def run_detection(video_path,
                 # get boxes that pass the min requirements and their pixel coordinates
                 (r,c,_) = curr_frame.shape
                 logger.debug("image row:{}, col:{}".format(r,c))
-                # TODO: Store the boxes as objects (need Box class)
-                filtered_labels = []
-                filtered_boxes = []
-                for i in range(len(boxes[0])):
-                    if scores[0][i] > 0.5:
-                        topleft = (int(r*boxes[0][i][0]),int(c*boxes[0][i][1]))
-                        topright = (int(r*boxes[0][i][0]),int(c*boxes[0][i][3]))
-                        botleft = (int(r*boxes[0][i][2]),int(c*boxes[0][i][1]))
-                        botright = (int(r*boxes[0][i][2]),int(c*boxes[0][i][3]))
-                        height = int(r*boxes[0][i][2] - r*boxes[0][i][0])
-                        width = int(c*boxes[0][i][3] - c*boxes[0][i][1])
-                        
-                        labels.append(classes[0][i])
-                        topleft_pts.append(topleft)
-                        widths.append(width)
-                        heights.append(height)
+                
+                filtered_boxes = parse_tf_output(curr_frame.shape, boxes, scores, classes)
 
-                        filtered_boxes.append([topleft, topright, botleft, botright])
-                        filtered_labels.append(classes[0][i])
-
-                logger.debug("{}".format(filtered_labels))
-                logger.debug("{}".format(filtered_boxes))
-
-                boxes_per_frame.append(filtered_boxes)
-                labels_per_frame.append(filtered_labels)
+                logger.debug("".join([str(i) for i in filtered_boxes]))
 
                 # TODO: Send the detected info to other systems every frame
                 
                 if write_output:
                     record.write(str(count)+"\n")            
-                    for i in range(len(topleft_pts)):
-                        record.write("{},{},{},{}\n".format(topleft_pts[i][0], topleft_pts[i][1], heights[i], widths[i]))  
+                    for i in range(len(filtered_boxes)):
+                        record.write("{}\n".format(str(filtered_boxes[i])))
 
                 # Visualization of the results of a detection.
                 curr_frame = curr_frame[...,::-1] #flip bgr back to rgb (Thanks OpenCV)
