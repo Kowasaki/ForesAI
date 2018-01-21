@@ -1,5 +1,5 @@
-from inference.detect import detect_camera_stream
 from benchmark import visualize_benchmark
+from inference.detect import detect_camera_stream
 
 # Put your TensorFlow model checkpoint and label mapping here
 ckpt = "./inference_graphs/ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb"

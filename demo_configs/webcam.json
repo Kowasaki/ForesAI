@@ -1,0 +1,13 @@
+{
+    "is_camera":true,
+    "device_path":0,
+    "show_stream":true,
+    "write_output":false,
+    "benchmark":false,
+    "library":"tensorflow",
+    "model":{
+        "classes": 90,
+        "model_path":"./inference_graphs/ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb",
+        "pbtxt": "./data/mscoco_label_map.pbtxt"
+        }
+}

@@ -24,15 +24,17 @@ The "tf_object_detection" module contains code that comes directly from [TensorF
 # Roadmap
 Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
 
-- Nvidia Tegra GPU usage monitoring
-- Nvidia NVML GPU usage monitoring 
+- Add movidius support
 - Interface for sending detections every frame
 - Add object tracker
 - ROS integration
 - Remove dependencies from Object Detection API for inference
+- Document functions
+- Nvidia Tegra GPU usage monitoring (If on Jetson platform, you can just use tegrastats.sh)
+- Nvidia NVML GPU usage monitoring (can also just use nividia-smi)
 
 # Instructions
-Currently, ForesAI only works with TensorFlow models that are trained using the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I would like to support other libraries as well so let me know if you want to help in this endeaver!
+Currently, ForesAI works with TensorFlow models that are trained using the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) and models that are compiled to work with the [Movidius NCS](https://github.com/movidius/ncsdk/). I would like to support other libraries as well so let me know if you want to help in this endeaver!
 
 Please take a look at all the *_demo.py scripts for how to use your respective camera hardware. My suggestion is to start by running the webcam_demo from your laptop to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing.
 

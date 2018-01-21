@@ -206,4 +206,12 @@ def detect_camera_stream(device_path,
     run_detection(device_path, detection_graph, label_map, categories, category_index, show_stream, 
         show_stream, write_output, usage_check)
    
+def detect(config):
 
+    if config["library"] == "tensorflow":
+        detection_graph, label_map, categories, category_index = graph_prep(config["model"]["classes"],
+            config["model"]["model_path"],config["model"]["pbtxt"])
+
+    run_detection(config["device_path"], detection_graph, label_map, categories, category_index, 
+        config["show_stream"], config["show_stream"], config["write_output"], config["benchmark"])
+    
