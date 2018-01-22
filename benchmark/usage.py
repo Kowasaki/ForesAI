@@ -33,3 +33,9 @@ def print_mem_usage():
     val = get_mem_usuage()
     print("Memory Usage: {} MB".format(val))
     return val
+
+def show_usage(cpu_usage_dump, mem_usage_dump, time_usage_dump, timer):
+    cpu_usage_dump += str(print_cpu_usage()) + '\n'
+    mem_usage_dump += str(print_mem_usage()) + '\n'
+    time_usage_dump += str(timer.print_elapsed_time()) + '\n'
+    return cpu_usage_dump, mem_usage_dump, time_usage_dump

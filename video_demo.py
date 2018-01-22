@@ -1,4 +1,4 @@
-from inference.detect import detect_video
+from inference.tf_op import detect_video
 
 # Write your video path here
 your_video = "./20171208_122045.mp4"

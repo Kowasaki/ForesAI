@@ -1,4 +1,4 @@
-from inference.detect import detect_camera_stream
+from inference.tf_op import detect_camera_stream
 
 # device_path, show_stream, write_output, NUM_CLASSES, PATH_TO_CKPT, pbtxt
 detect_camera_stream(0,

@@ -4,9 +4,9 @@ import numpy as np
 import os
 import tensorflow as tf
 
-from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage
+from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage, show_usage
 from inference.box_op import Box, parse_tf_output
-from inference.detect import detect, show_usage
+from inference.detect import detect
 from tf_object_detection.utils import label_map_util
 from tf_object_detection.utils import visualization_utils as vis_util
 

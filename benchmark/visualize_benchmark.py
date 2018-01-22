@@ -51,4 +51,3 @@ def plot_resource_over_time(path, cpu = True, mem = True, gpu = False):
 
     plt.show()
 
-
