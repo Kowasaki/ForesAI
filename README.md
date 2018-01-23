@@ -24,7 +24,7 @@ The "tf_object_detection" module contains code that comes directly from [TensorF
 - [TensorFlow](https://www.tensorflow.org/)
 
 ## For Movidius:
-- [Movidious SDK](https://movidius.github.io/ncsdk/)
+- [Movidius SDK](https://movidius.github.io/ncsdk/)
 
 ## For Training (TensorFlow):
 - You will need the requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
