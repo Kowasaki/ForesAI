@@ -12,14 +12,22 @@ Currently, All training/evaluation is done via the TensorFlow Object Detection A
 The "tf_object_detection" module contains code that comes directly from [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I will be focused on removing the dependencies on the API for inference bit by bit as I continue to improve upon the efficiency of library
 
 # Requirements
+## Must haves:
 - Python 2 or 3
     - Following packages:
         - numpy
         - psutil
+- OpenCV3
+
+## For TensorFlow:
 - [protobuf](https://github.com/google/protobuf)
 - [TensorFlow](https://www.tensorflow.org/)
-- OpenCV3
-- For Training, you will need the requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
+
+## For Movidius:
+- [Movidious SDK](https://movidius.github.io/ncsdk/)
+
+## For Training (TensorFlow):
+- You will need the requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
 
 # Roadmap
 Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
