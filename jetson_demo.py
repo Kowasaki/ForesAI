@@ -1,4 +1,4 @@
-from inference.detect import detect_camera_stream
+from inference.tf_op import detect_camera_stream
 from benchmark import visualize_benchmark
 
 # Put your TensorFlow model checkpoint and label mapping here
