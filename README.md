@@ -1,5 +1,5 @@
 # ForesAI
-Lightweight Computer Vision library for using TensorFlow models to perform inference tasks in embedded AI systems
+Lightweight Computer Vision library for using TensorFlow and Movidius models to perform inference tasks in edge AI systems
 
 # Introduction
 Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and software engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models directly into your product across different platforms. With a particular emphasis on robotic use cases, ForesAI aims to minimize resource usage so that it can run on as many different hardware as possible and leave room for you to build out the rest of the AI system.
@@ -13,7 +13,7 @@ The "tf_object_detection" module contains code that comes directly from [TensorF
 
 # Requirements
 ## Must haves:
-- Python 2 or 3
+- Python 3
     - Following packages:
         - numpy
         - psutil
