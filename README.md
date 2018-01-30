@@ -50,17 +50,17 @@ I would like to support other libraries as well so let me know if you want to he
 
 Please take a look at all the *_demo.py scripts for how to use your respective camera hardware. My suggestion is to start by running the webcam_demo from your laptop to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing.
 
-## For Training (TensorFlow):
+# Training Tips (TensorFlow):
 You will need the requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
 
 Please refer to the detailed tutorial at https://github.com/tensorflow/models/tree/master/research/object_detection for how to use the Object Detection API for training/evaluation
 
-## Do this before running the api or save it into bashrc:
-### From tensorflow/models/research/
-#### For nix systems:
+### Do this before running the api or save it into bashrc:
+#### From tensorflow/models/research/
+##### For nix systems:
 export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 
-#### For windows systems (also from research folder):
+##### For windows systems (also from research folder):
 py -3 setup.py build
 py -3 setup.py install
 
