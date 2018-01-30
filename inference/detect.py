@@ -11,5 +11,6 @@ def detect(config):
             config["show_stream"], config["show_stream"], config["write_output"], config["benchmark"])
     
     elif config["library"] == "movidius":
-        from inference.mvnc_op import test        
+        from inference.mvnc_op import run_detection
+        run_detection(config["device_path"],config["model"]["model_path"])        
     

@@ -1,0 +1,18 @@
+{
+    "is_camera":true,
+    "device_path":"./inference_graphs/ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb",
+    "show_stream":true,
+    "write_output":false,
+    "benchmark":false,
+    "library":"movidius",
+    "model":{
+        "classes": 21,
+        "labels": [ "background",
+            "aeroplane", "bicycle", "bird", "boat",
+            "bottle", "bus", "car", "cat", "chair",
+            "cow", "diningtable", "dog", "horse",
+            "motorbike", "person", "pottedplant",
+            "sheep", "sofa", "train", "tvmonitor"],
+        "model_path":"graph"
+        }
+}
