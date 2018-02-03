@@ -5,10 +5,10 @@ import os
 import tensorflow as tf
 
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage, show_usage
-from inference.box_op import Box, parse_tf_output
+from utils.box_op import Box, parse_tf_output
 from inference.detect import detect
 from tf_object_detection.utils import label_map_util
-from tf_object_detection.utils import visualization_utils as vis_util
+from utils.visualize import overlay
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -110,11 +110,6 @@ def run_detection(video_path,
                     cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
                         mem_usage_dump, time_usage_dump, timer)
                 
-                topleft_pts = []
-                widths = []
-                heights = []
-                labels = []
-
                 # get boxes that pass the min requirements and their pixel coordinates
                 (r,c,_) = curr_frame.shape
                 logger.debug("image row:{}, col:{}".format(r,c))
@@ -131,23 +126,15 @@ def run_detection(video_path,
                         record.write("{}\n".format(str(filtered_boxes[i])))
 
                 # Visualization of the results of a detection.
-                curr_frame = curr_frame[...,::-1] #flip bgr back to rgb (Thanks OpenCV)
                 if visualize:
-                    drawn_img = vis_util.visualize_boxes_and_labels_on_image_array(
-                        curr_frame,
-                        np.squeeze(boxes),
-                        np.squeeze(classes).astype(np.int32),
-                        np.squeeze(scores),
-                        category_index,
-                        use_normalized_coordinates=True,
-                        line_thickness=8)
+                    drawn_img = overlay(curr_frame, category_index, filtered_boxes)
                     if show_window:
                         window_name = "stream"
                         cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-                        cv2.imshow(window_name,drawn_img[...,::-1])
+                        cv2.imshow(window_name,drawn_img)
                 
                     if write_output:
-                        trackedVideo.write(drawn_img[...,::-1])
+                        trackedVideo.write(drawn_img)
                 
                 count += 1
 

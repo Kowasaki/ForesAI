@@ -16,5 +16,4 @@ detect_camera_stream("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, h
                      pbtxt,
                      usage_check = True)
 
-# Plot the cpu and memory usage over time. If you have a nvidia gpu put "gpu = True" in the argument
-visualize_benchmark.plot_resource_over_time("../jetson_stats")
+visualize_benchmark.plot_resource_over_time(".")

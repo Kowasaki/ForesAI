@@ -12,6 +12,9 @@ def parse_benchmark_values(src):
 
 def plot_resource_over_time(path, cpu = True, mem = True, gpu = False):
 
+    if gpu:
+        print("GPU usage tracking unsupported at this time")
+        
     plots = 0 
     time_src = os.path.join(path,"time_usage.txt")
     time_list = parse_benchmark_values(time_src)

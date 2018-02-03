@@ -1,0 +1,13 @@
+{
+    "is_camera":true,
+    "device_path":"nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720,format=(string)I420, framerate=(fraction)30/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink",
+    "show_stream":true,
+    "write_output":false,
+    "benchmark":true,
+    "library":"movidius",
+    "model":{
+        "classes": 90,
+        "model_path":"./inference_graphs/ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb",
+        "pbtxt": "./data/mscoco_label_map.pbtxt"
+        }
+}
