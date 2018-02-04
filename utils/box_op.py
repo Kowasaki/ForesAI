@@ -1,7 +1,7 @@
 import numpy
 
 class Box:
-    def __init__(self, y, x, width, height, label, score):
+    def __init__(self, y, x, height, width, label, score):
         self.x = x
         self.y = y
         self.width = width

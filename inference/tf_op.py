@@ -5,9 +5,11 @@ import os
 import tensorflow as tf
 
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage, show_usage
-from utils.box_op import Box, parse_tf_output
 from inference.detect import detect
 from tf_object_detection.utils import label_map_util
+from utils.box_op import Box, parse_tf_output
+from utils.fps import FPS
+from utils.videostream import WebcamVideoStream
 from utils.visualize import overlay
 
 logging.basicConfig(level=logging.INFO)
@@ -55,13 +57,10 @@ def run_detection(video_path,
         cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
             mem_usage_dump, time_usage_dump, timer)
 
-    vid = cv2.VideoCapture(video_path)
+    vid = WebcamVideoStream(src = video_path).start()
 
-    if not vid.isOpened():
-        raise Exception("Video not found!")
-        
-    c = int(vid.get(3))  
-    r = int(vid.get(4)) 
+    r, c = vid.get_dimensions()
+
     logger.debug("Frame width: {} height: {}".format(r,c))
     
     if write_output:
@@ -82,9 +81,12 @@ def run_detection(video_path,
             detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
             num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+            
+            if usage_check:
+                fps = FPS().start()
 
             # Read video frame by frame and perform inference
-            while(vid.isOpened()):
+            while(vid.stream.isOpened()):
                 # the array based representation of the image will be used later in order to prepare the
                 # result image with boxes and labels on it.
                 logger.debug("frame {}".format(count))
@@ -106,6 +108,7 @@ def run_detection(video_path,
                     feed_dict={image_tensor: curr_frame_expanded})
 
                 if usage_check:
+                    fps.update()
                     logger.info("Frame {}".format(count))
                     cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
                         mem_usage_dump, time_usage_dump, timer)
@@ -139,7 +142,12 @@ def run_detection(video_path,
                 count += 1
 
     if usage_check:
-        logger.info("Total Time elapsed: {} seconds".format(timer.get_elapsed_time()))
+        fps.stop()
+        logger.info("[USAGE] elasped time: {:.2f}".format(fps.elapsed()))
+        logger.info("[USAGE] approx. FPS: {:.2f}".format(fps.fps()))
+        logger.info("[USAGE] inferenced frames: {}".format(fps.get_frames()))
+        logger.info("[USAGE] raw frames: {}".format(vid.get_raw_frames()))
+        logger.info("[USAGE] Total Time elapsed: {:.2f} seconds".format(timer.get_elapsed_time()))
         with open("cpu_usage.txt", "w") as c:
             c.write(cpu_usage_dump)
         with open("mem_usage.txt", "w") as m:
@@ -147,7 +155,7 @@ def run_detection(video_path,
         with open("time_usage.txt", "w") as t:
             t.write(time_usage_dump) 
 
-    vid.release()
+    vid.stop()
 
     logger.debug("Result: {} frames".format(count))
     
