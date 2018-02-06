@@ -7,13 +7,18 @@ Applications that utilizes machine learning models for vision tasks has been gro
 This is a very early work in progress but I am looking for feedback as I want to library to be useful for others as well. Feel free to open an issue or make a pull request as you see fit--I am looking for additional contributors as I continue to build upon the library. 
 
 # Notice
-These APIs assume you have prepared a pre-trained model. For my TensorFlow models, all training/evaluation is done via the TensorFlow Object Detection API. I will provide the scripts I used for my own training under "training" in the very near future, but YMMV as much of it depends on your own system configurations.
+These APIs assume you have prepared a pre-trained model. For my TensorFlow models, all training/evaluation is done via the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I will provide the scripts I used for my own training under "training" in the very near future, but YMMV as much of it depends on your own system configurations.
 
-The "tf_object_detection" module contains code that comes directly from [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I will be focused on removing the dependencies on the API for inference bit by bit as I continue to improve upon the efficiency of library
+Currently, ForesAI works with following deep learning models:
+- TensorFlow models that are trained using the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) 
+
+- [Movidius NCS](https://github.com/movidius/ncsdk/) compiled models for object detection. 
+
+I would like to support other libraries as well so let me know if you want to help in this endeaver!
 
 # Requirements
 ## Must haves:
-- Python 3
+- Python 3 (Python 2 might still work, but is untested)
     - Following packages:
         - numpy
         - psutil
@@ -40,14 +45,9 @@ Right now the list will only consist of things I need for my project in the imme
 - Nvidia NVML GPU usage monitoring (can also just use nividia-smi)
 
 # Instructions
-Currently, ForesAI works with following deep learning models:
-- TensorFlow models that are trained using the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) 
+If you don't have a model set up, feel free to use this [slightly modified SSD-mobilenetv1 model](https://drive.google.com/drive/folders/1Cwy89QCs3R2dFRxZ85TZJZFBFMtTsl0D?usp=sharing) here. You'll need both folders extracted within the "ForesAI" folder.
 
-- [Movidius NCS](https://github.com/movidius/ncsdk/) compiled models for object detection. 
-
-I would like to support other libraries as well so let me know if you want to help in this endeaver!
-
-Please take a look at all the *_demo.py scripts for how to use your respective camera hardware. My suggestion is to start by running the webcam_demo from your laptop to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing.
+Please take a look at all the *_demo.py scripts for how to use your respective camera hardware. If using your own model, you will need to tweak the config json within the "demo configs" folder. My suggestion is to start by running the json_benchmark_demo.py from your laptop to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing.
 
 # Training Tips (TensorFlow):
 You will need the requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
