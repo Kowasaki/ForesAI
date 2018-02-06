@@ -19,9 +19,9 @@ def plot_resource_over_time(path, cpu = True, mem = True, gpu = False):
     time_src = os.path.join(path,"time_usage.txt")
     time_list = parse_benchmark_values(time_src)
 
-    print("Startup Time: {} seconds".format(float(time_list[1])))
+    print("Startup Time: {:.4f} seconds".format(float(time_list[1])))
     # FPS omits startup time, which is why time list starts from the second element
-    print("{} Frames per Second".format(float(len(time_list)-1)/float(time_list[-1] - time_list[1])))
+    print("{:.4f} Frames per Second".format(float(len(time_list)-1)/float(time_list[-1] - time_list[1])))
 
     if cpu:
         cpu_src = os.path.join(path,"cpu_usage.txt")

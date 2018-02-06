@@ -27,7 +27,7 @@ The "tf_object_detection" module contains code that comes directly from [TensorF
 - [Movidius SDK](https://movidius.github.io/ncsdk/)
 
 
-# Roadmap
+# To-Dos
 Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
 
 - Interface for sending detections every frame
@@ -35,7 +35,6 @@ Right now the list will only consist of things I need for my project in the imme
 - Add object tracker
 - ROS integration
 - image segmentation tasks
-- Remove dependencies from Object Detection API for inference
 - Document functions
 - Nvidia Tegra GPU usage monitoring (If on Jetson platform, you can just use tegrastats.sh)
 - Nvidia NVML GPU usage monitoring (can also just use nividia-smi)

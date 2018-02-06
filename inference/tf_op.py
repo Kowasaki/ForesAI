@@ -2,7 +2,9 @@ import cv2
 import logging
 import numpy as np
 import os
+import signal
 import tensorflow as tf
+import time
 
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage, show_usage
 from inference.detect import detect
@@ -45,6 +47,8 @@ def run_detection(video_path,
                   write_output, 
                   usage_check):
 
+    config = tf.ConfigProto()
+
     labels_per_frame = []
     boxes_per_frame = []
     cpu_usage_dump = ""
@@ -71,7 +75,7 @@ def run_detection(video_path,
 
     # Detection
     with detection_graph.as_default():
-        with tf.Session(graph=detection_graph) as sess:
+        with tf.Session(graph=detection_graph, config = config) as sess:
             # Definite input and output Tensors for detection_graph
             image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
             # Each box represents a part of the image where a particular object was detected.
@@ -80,66 +84,74 @@ def run_detection(video_path,
             # Score is shown on the result image, together with the class label.
             detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
-            num_detections = detection_graph.get_tensor_by_name('num_detections:0')
             
             if usage_check:
                 fps = FPS().start()
 
             # Read video frame by frame and perform inference
             while(vid.stream.isOpened()):
-                # the array based representation of the image will be used later in order to prepare the
-                # result image with boxes and labels on it.
-                logger.debug("frame {}".format(count))
-                retval, curr_frame = vid.read()
+                try:
+                    # the array based representation of the image will be used later in order to prepare the
+                    # result image with boxes and labels on it.
+                    logger.debug("Frame {}".format(count))
+                    retval, curr_frame = vid.read()
 
-                if not retval:
-                    logger.info("Video ending at frame {}".format(count))
-                    break
-
-                if show_window:
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                    if not retval:
+                        logger.info("Video ending at frame {}".format(count))
                         break
 
-                # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-                curr_frame_expanded = np.expand_dims(curr_frame, axis=0)
-                # Actual detection.
-                (boxes, scores, classes, num) = sess.run(
-                    [detection_boxes, detection_scores, detection_classes, num_detections],
-                    feed_dict={image_tensor: curr_frame_expanded})
-
-                if usage_check:
-                    fps.update()
-                    logger.info("Frame {}".format(count))
-                    cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
-                        mem_usage_dump, time_usage_dump, timer)
-                
-                # get boxes that pass the min requirements and their pixel coordinates
-                (r,c,_) = curr_frame.shape
-                logger.debug("image row:{}, col:{}".format(r,c))
-                
-                filtered_boxes = parse_tf_output(curr_frame.shape, boxes, scores, classes)
-
-                logger.debug("".join([str(i) for i in filtered_boxes]))
-
-                # TODO: Send the detected info to other systems every frame
-                
-                if write_output:
-                    record.write(str(count)+"\n")            
-                    for i in range(len(filtered_boxes)):
-                        record.write("{}\n".format(str(filtered_boxes[i])))
-
-                # Visualization of the results of a detection.
-                if visualize:
-                    drawn_img = overlay(curr_frame, category_index, filtered_boxes)
                     if show_window:
-                        window_name = "stream"
-                        cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-                        cv2.imshow(window_name,drawn_img)
-                
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                            break
+
+                    # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+                    curr_frame_expanded = np.expand_dims(curr_frame, axis=0)
+                    curr_frame_expanded = np.int8(curr_frame_expanded)
+
+                    # Actual detection.
+                    start = time.time()
+                    (boxes, scores, classes) = sess.run(
+                        [detection_boxes, detection_scores, detection_classes],
+                        feed_dict={image_tensor: curr_frame_expanded})
+                    end = time.time()
+                    logger.info("Session run time: {:.4f}".format(end - start))
+
+                    if usage_check:
+                        fps.update()
+                        logger.info("Frame {}".format(count))
+                        cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
+                            mem_usage_dump, time_usage_dump, timer)
+                    
+                    (r,c,_) = curr_frame.shape
+                    logger.debug("image height:{}, width:{}".format(r,c))
+                    # get boxes that pass the min requirements and their pixel coordinates
+                    filtered_boxes = parse_tf_output(curr_frame.shape, boxes, scores, classes)
+
+                    logger.debug("".join([str(i) for i in filtered_boxes]))
+
+                    # TODO: Send the detected info to other systems every frame
+                    
                     if write_output:
-                        trackedVideo.write(drawn_img)
-                
-                count += 1
+                        record.write(str(count)+"\n")            
+                        for i in range(len(filtered_boxes)):
+                            record.write("{}\n".format(str(filtered_boxes[i])))
+
+                    # Visualization of the results of a detection.
+                    if visualize:
+                        drawn_img = overlay(curr_frame, category_index, filtered_boxes)
+                        if show_window:
+                            window_name = "stream"
+                            cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+                            cv2.imshow(window_name,drawn_img)
+                    
+                        if write_output:
+                            trackedVideo.write(drawn_img)
+                    
+                    count += 1
+
+                except KeyboardInterrupt:
+                    logger.info("Ctrl + C Pressed. Attempting graceful exit")
+                    break
 
     if usage_check:
         fps.stop()

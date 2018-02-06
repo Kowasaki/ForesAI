@@ -5,18 +5,18 @@ def overlay(display_image, category_index, boxes):
 
     box_color = (255, 128, 0)  # box color
     box_thickness = 2
-    
+
     for b in boxes:
         cv2.rectangle(display_image, (b.x, b.y), (b.x+b.width, b.y+b.height), box_color, box_thickness)
 
-        label_text = category_index[b.label]["name"]
+        label_text = "{} {:.4f}".format(category_index[b.label]["name"], b.score)
         # draw the classification label string just above and to the left of the rectangle
         label_background_color = (0, int(b.score * 175), 75)
         label_text_color = (255, 255, 255)  # white text
         label_size = cv2.getTextSize(label_text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
         label_left = b.x
         label_top = b.y - label_size[1]
-        
+
         if (label_top < 1):
             label_top = 1
         label_right = label_left + label_size[0]

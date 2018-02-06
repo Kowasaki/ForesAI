@@ -3,6 +3,7 @@ data
 inference_graphs
 model
 train
+incomplete
 *.jpg
 *.mp4
 *.avi
