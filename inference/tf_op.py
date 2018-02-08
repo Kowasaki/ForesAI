@@ -8,6 +8,7 @@ import time
 
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage, show_usage
 from inference.detect import detect
+# from tensorflow.core.framework import graph_pb2
 from tf_object_detection.utils import label_map_util
 from utils.box_op import Box, parse_tf_output
 from utils.fps import FPS
@@ -16,6 +17,13 @@ from utils.visualize import overlay
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def _node_name(n):
+
+  if n.startswith("^"):
+    return n[1:]
+  else:
+    return n.split(":")[0]
 
 def load_model(PATH_TO_CKPT):
     # Load a (frozen) Tensorflow model into memory.
@@ -130,6 +138,11 @@ def run_detection(video_path,
     mem_usage_dump = ""
     time_usage_dump = ""
 
+    if ros_enabled:
+        from utils.ros_op import DetectionPublisher, CameraSubscriber
+        pub = DetectionPublisher()
+        sub = CameraSubscriber()
+
     if usage_check:
         timer = Timer()
         logger.info("Initial startup")
@@ -206,11 +219,10 @@ def run_detection(video_path,
                             [detection_boxes, detection_scores, detection_classes],
                             feed_dict={score_in:score, expand_in: expand}) 
                     end = time.time()
-                    
-                    logger.info("Session run time: {:.4f}".format(end - start))
 
                     if usage_check:
                         fps.update()
+                        logger.info("Session run time: {:.4f}".format(end - start))
                         logger.info("Frame {}".format(count))
                         cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
                             mem_usage_dump, time_usage_dump, timer)
@@ -224,6 +236,9 @@ def run_detection(video_path,
                     if ros_enabled:
                     # TODO: Send the detected info to other systems every frame
                         logger.info("Publishing bboxes")
+                        logger.info("".join([str(i) for i in filtered_boxes]))
+                        pub.send_boxes(filtered_boxes)
+                        
 
                     
                     if write_output:
