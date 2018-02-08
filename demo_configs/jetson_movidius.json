@@ -4,6 +4,7 @@
     "show_stream":true,
     "write_output":false,
     "benchmark":false,
+    "ros_enabled":false,
     "library":"movidius",
     "model":{
         "classes": 21,

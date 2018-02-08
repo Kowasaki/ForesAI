@@ -17,9 +17,7 @@ from utils.visualize import overlay
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def graph_prep(NUM_CLASSES,
-               PATH_TO_CKPT,
-               pbtxt):
+def load_model(PATH_TO_CKPT):
     # Load a (frozen) Tensorflow model into memory.
     detection_graph = tf.Graph()
     with detection_graph.as_default():
@@ -28,6 +26,80 @@ def graph_prep(NUM_CLASSES,
             serialized_graph = fid.read()
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
+    
+    return detection_graph
+
+# source: https://github.com/GustavZ/realtime_object_detection.git under object_detection.py
+def load_split_model(PATH_TO_CKPT):
+    # load a frozen Model and split it into GPU and CPU graphs
+    input_graph = tf.Graph()
+    with tf.Session(graph=input_graph):
+        score = tf.placeholder(tf.float32, shape=(None, 1917, 90), name="Postprocessor/convert_scores")
+        expand = tf.placeholder(tf.float32, shape=(None, 1917, 1, 4), name="Postprocessor/ExpandDims_1")
+        for node in input_graph.as_graph_def().node:
+            if node.name == "Postprocessor/convert_scores":
+                score_def = node
+            if node.name == "Postprocessor/ExpandDims_1":
+                expand_def = node
+                
+    detection_graph = tf.Graph()
+    with detection_graph.as_default():
+        od_graph_def = tf.GraphDef()
+        with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
+            serialized_graph = fid.read()
+            od_graph_def.ParseFromString(serialized_graph)
+            dest_nodes = ['Postprocessor/convert_scores','Postprocessor/ExpandDims_1']
+        
+            edges = {}
+            name_to_node_map = {}
+            node_seq = {}
+            seq = 0
+            for node in od_graph_def.node:
+                n = _node_name(node.name)
+                name_to_node_map[n] = node
+                edges[n] = [_node_name(x) for x in node.input]
+                node_seq[n] = seq
+                seq += 1
+        
+            for d in dest_nodes:
+                assert d in name_to_node_map, "%s is not in graph" % d
+        
+            nodes_to_keep = set()
+            next_to_visit = dest_nodes[:]
+            while next_to_visit:
+                n = next_to_visit[0]
+                del next_to_visit[0]
+                if n in nodes_to_keep:
+                    continue
+                nodes_to_keep.add(n)
+                next_to_visit += edges[n]
+        
+            nodes_to_keep_list = sorted(list(nodes_to_keep), key=lambda n: node_seq[n])
+        
+            nodes_to_remove = set()
+            for n in node_seq:
+                if n in nodes_to_keep_list: continue
+                nodes_to_remove.add(n)
+            nodes_to_remove_list = sorted(list(nodes_to_remove), key=lambda n: node_seq[n])
+        
+            keep = graph_pb2.GraphDef()
+            for n in nodes_to_keep_list:
+                keep.node.extend([copy.deepcopy(name_to_node_map[n])])
+        
+            remove = graph_pb2.GraphDef()
+            remove.node.extend([score_def])
+            remove.node.extend([expand_def])
+            for n in nodes_to_remove_list:
+                remove.node.extend([copy.deepcopy(name_to_node_map[n])])
+    
+            with tf.device('/gpu:0'):
+                tf.import_graph_def(keep, name='')
+            with tf.device('/cpu:0'):
+                tf.import_graph_def(remove, name='')
+
+    return detection_graph, score, expand
+
+def load_label_map(NUM_CLASSES, pbtxt):
 
     # Loading Label Map
     label_map = label_map_util.load_labelmap(pbtxt)
@@ -35,7 +107,7 @@ def graph_prep(NUM_CLASSES,
         max_num_classes=NUM_CLASSES, use_display_name=True)
     category_index = label_map_util.create_category_index(categories)
 
-    return detection_graph, label_map, categories, category_index
+    return label_map, categories, category_index
 
 def run_detection(video_path,
                   detection_graph, 
@@ -44,8 +116,11 @@ def run_detection(video_path,
                   category_index, 
                   show_window,
                   visualize, 
-                  write_output, 
-                  usage_check):
+                  write_output,
+                  ros_enabled, 
+                  usage_check,
+                  score_node = None,
+                  expand_node = None):
 
     config = tf.ConfigProto()
 
@@ -76,6 +151,7 @@ def run_detection(video_path,
     # Detection
     with detection_graph.as_default():
         with tf.Session(graph=detection_graph, config = config) as sess:
+
             # Definite input and output Tensors for detection_graph
             image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
             # Each box represents a part of the image where a particular object was detected.
@@ -84,6 +160,13 @@ def run_detection(video_path,
             # Score is shown on the result image, together with the class label.
             detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
+
+            # Using the split model hack
+            if score_node is not None and expand_node is not None:
+                score_out = detection_graph.get_tensor_by_name('Postprocessor/convert_scores:0')
+                expand_out = detection_graph.get_tensor_by_name('Postprocessor/ExpandDims_1:0')
+                score_in = detection_graph.get_tensor_by_name('Postprocessor/convert_scores_1:0')
+                expand_in = detection_graph.get_tensor_by_name('Postprocessor/ExpandDims_1_1:0')                
             
             if usage_check:
                 fps = FPS().start()
@@ -110,10 +193,20 @@ def run_detection(video_path,
 
                     # Actual detection.
                     start = time.time()
-                    (boxes, scores, classes) = sess.run(
-                        [detection_boxes, detection_scores, detection_classes],
-                        feed_dict={image_tensor: curr_frame_expanded})
+                    if score_node is None and expand_node is None:
+                        (boxes, scores, classes) = sess.run(
+                            [detection_boxes, detection_scores, detection_classes],
+                            feed_dict={image_tensor: curr_frame_expanded})
+                    else:
+                        # Split Detection in two sessions.
+                        (score, expand) = sess.run(
+                            [score_out, expand_out], 
+                            feed_dict={image_tensor: curr_frame_expanded})
+                        (boxes, scores, classes) = sess.run(
+                            [detection_boxes, detection_scores, detection_classes],
+                            feed_dict={score_in:score, expand_in: expand}) 
                     end = time.time()
+                    
                     logger.info("Session run time: {:.4f}".format(end - start))
 
                     if usage_check:
@@ -127,9 +220,11 @@ def run_detection(video_path,
                     # get boxes that pass the min requirements and their pixel coordinates
                     filtered_boxes = parse_tf_output(curr_frame.shape, boxes, scores, classes)
 
-                    logger.debug("".join([str(i) for i in filtered_boxes]))
 
+                    if ros_enabled:
                     # TODO: Send the detected info to other systems every frame
+                        logger.info("Publishing bboxes")
+
                     
                     if write_output:
                         record.write(str(count)+"\n")            
@@ -146,6 +241,9 @@ def run_detection(video_path,
                     
                         if write_output:
                             trackedVideo.write(drawn_img)
+                    else:
+                        logger.info("".join([str(i) for i in filtered_boxes]))
+
                     
                     count += 1
 
@@ -184,9 +282,10 @@ def detect_video(video_path,
                  NUM_CLASSES,
                  PATH_TO_CKPT,
                  pbtxt):
-
-    detection_graph, label_map, categories, category_index = graph_prep(NUM_CLASSES,PATH_TO_CKPT,pbtxt)
-    run_detection(video_path, detection_graph, label_map, categories, category_index, False, True, True, False)
+    
+    detection_graph = load_model(PATH_TO_CKPT)
+    label_map, categories, category_index = load_label_map(NUM_CLASSES, pbtxt)
+    run_detection(video_path, detection_graph, label_map, categories, category_index, False, True, True, False, False)
 
 def detect_camera_stream(device_path,
                          show_stream,
@@ -194,9 +293,11 @@ def detect_camera_stream(device_path,
                          NUM_CLASSES,
                          PATH_TO_CKPT,
                          pbtxt,
+                         ros_enabled,
                          usage_check = False):
 
-    detection_graph, label_map, categories, category_index = graph_prep(NUM_CLASSES,PATH_TO_CKPT,pbtxt)
+    detection_graph = load_model(PATH_TO_CKPT)
+    label_map, categories, category_index = load_label_map(NUM_CLASSES, pbtxt)
     run_detection(device_path, detection_graph, label_map, categories, category_index, show_stream, 
-        show_stream, write_output, usage_check)
+        show_stream, write_output, ros_enabled, usage_check)
 

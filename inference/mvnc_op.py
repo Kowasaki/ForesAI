@@ -162,7 +162,7 @@ def handle_args():
 #    and labels identifying the found objects within the image.
 # ssd_mobilenet_graph is the Graph object from the NCAPI which will
 #    be used to peform the inference.
-def run_inference(image_to_classify, ssd_mobilenet_graph):
+def run_inference(image_to_classify, ssd_mobilenet_graph, visualize):
 
     # preprocess the image to meet nework expectations
     resized_image = preprocess_image(image_to_classify)
@@ -206,8 +206,11 @@ def run_inference(image_to_classify, ssd_mobilenet_graph):
             x2 = min(int(output[base_index + 5] * image_to_classify.shape[0]), image_to_classify.shape[0]-1)
             y2 = min((output[base_index + 6] * image_to_classify.shape[1]), image_to_classify.shape[1]-1)
 
-            # overlay boxes and labels on to the image
-            overlay_on_image(image_to_classify, output[base_index:base_index + 7])
+            if visualize:
+                # overlay boxes and labels on to the image
+                overlay_on_image(image_to_classify, output[base_index:base_index + 7])
+            else:
+                print(output[base_index:base_index + 7])
 
 
 # prints usage information
@@ -224,10 +227,9 @@ def print_usage():
     print('python3 run_video.py resize_window=1920x1080')
 
 
-# This function is called from the entry point to do
-# all the work.
-def run_detection(camera_path,
-                  graph_filename):
+# This function is called from the entry point to do all the work.
+def run_detection(camera_path, graph_filename, visualize, ros_enabled):
+
     global resize_output, resize_output_width, resize_output_height
 
 
@@ -293,7 +295,7 @@ def run_detection(camera_path,
                 exit_app = True
                 break
 
-            run_inference(display_image, ssd_mobilenet_graph)
+            run_inference(display_image, ssd_mobilenet_graph, visualize)
 
             if (resize_output):
                 display_image = cv2.resize(display_image,

@@ -47,7 +47,7 @@ Right now the list will only consist of things I need for my project in the imme
 # Instructions
 If you don't have a model set up, feel free to use this [slightly modified SSD-mobilenetv1 model](https://drive.google.com/drive/folders/1Cwy89QCs3R2dFRxZ85TZJZFBFMtTsl0D?usp=sharing) here. You'll need both folders extracted within the "ForesAI" folder.
 
-Please take a look at all the *_demo.py scripts for how to use your respective camera hardware. If using your own model, you will need to tweak the config json within the "demo configs" folder. My suggestion is to start by running the json_benchmark_demo.py from your laptop to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing.
+ My suggestion is to start by running the webcam_benchmark_demo.py from your webcam to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing. For other configurations, please take a look at the *_demo.py scripts along with the respective JSON config files for how to use your own camera hardware. If using your own model, you will need to tweak the config json within the "demo_configs" folder.
 
 # Training Tips (TensorFlow):
 You will need the requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
