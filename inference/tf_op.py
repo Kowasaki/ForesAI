@@ -1,3 +1,4 @@
+import copy
 import cv2
 import logging
 import numpy as np
@@ -8,7 +9,7 @@ import time
 
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage, show_usage
 from inference.detect import detect
-# from tensorflow.core.framework import graph_pb2
+from tensorflow.core.framework import graph_pb2
 from tf_object_detection.utils import label_map_util
 from utils.box_op import Box, parse_tf_output
 from utils.fps import FPS
@@ -130,7 +131,7 @@ def run_detection(video_path,
                   score_node = None,
                   expand_node = None):
 
-    config = tf.ConfigProto()
+    config = tf.ConfigProto(allow_soft_placement=True)
 
     labels_per_frame = []
     boxes_per_frame = []
