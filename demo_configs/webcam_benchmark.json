@@ -7,7 +7,7 @@
     "ros_enabled":false,
     "library":"tensorflow",
     "model":{
-        "split_hack":false,
+        "split_hack":true,
         "classes": 90,
         "model_path":"./inference_graphs/ssd_mobilenet_v1_coco_higher_threshold/frozen_inference_graph.pb",
         "pbtxt": "./data/mscoco_label_map.pbtxt"

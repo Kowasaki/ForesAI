@@ -1,15 +1,20 @@
-# Modified from webcamvideostream.py under https://github.com/jrosebr1/imutils 
-from threading import Thread
 import cv2
+import rospy
+
+from cv_bridge import CvBridge, CvBridgeError
+from threading import Thread
 from utils.fps import FPS
 
-class WebcamVideoStream:
+class CameraPublisher:
     def __init__(self, src=0):
         # initialize the video camera stream and read the first frame
         # from the stream
         self.stream = cv2.VideoCapture(src)
         if not self.stream.isOpened():
             raise Exception("Video/Camera device not found at: {}".format(src))
+        
+        self.pub = rospy.Publisher("camera", String)
+        rospy.init_node("img_raw", anonymous=True)
 
         (self.grabbed, self.frame) = self.stream.read()
 
@@ -36,6 +41,7 @@ class WebcamVideoStream:
 
             # otherwise, read the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
+            self.pub.publish(self.frame)
             self.f.update()
 
     def read(self):
@@ -55,9 +61,3 @@ class WebcamVideoStream:
     
     def get_raw_frames(self):
         return self.f.get_frames()
-    
-    def is_running(self):
-        if self.stopped:
-            return False
-        else:
-            return True

@@ -3,7 +3,6 @@
 # Code adapted from video_objects.py from https://github.com/movidius/ncappzoo.git
 # under ncappzoo/apps/video_objects
 
-from mvnc import mvncapi as mvnc
 import sys
 import numpy as np
 import cv2
@@ -11,7 +10,10 @@ import time
 import csv
 import os
 import sys
+
+from mvnc import mvncapi as mvnc
 from sys import argv
+from utils.box_op import Box, parse_mov_output
 
 # name of the opencv window
 cv_window_name = "Stream"
@@ -162,7 +164,9 @@ def handle_args():
 #    and labels identifying the found objects within the image.
 # ssd_mobilenet_graph is the Graph object from the NCAPI which will
 #    be used to peform the inference.
-def run_inference(image_to_classify, ssd_mobilenet_graph, visualize):
+def run_inference(image_to_classify, ssd_mobilenet_graph, visualize, pub = None):
+
+    frame_shape = image_to_classify.shape
 
     # preprocess the image to meet nework expectations
     resized_image = preprocess_image(image_to_classify)
@@ -209,6 +213,12 @@ def run_inference(image_to_classify, ssd_mobilenet_graph, visualize):
             if visualize:
                 # overlay boxes and labels on to the image
                 overlay_on_image(image_to_classify, output[base_index:base_index + 7])
+            elif pub is not None:
+                print("Publishing bboxes")
+                filtered_boxes = parse_mov_output(frame_shape, output[base_index:base_index + 7], output[base_index + 1], 
+                    output[base_index + 2])
+                print("".join([str(i) for i in filtered_boxes]))
+                pub.send_boxes(filtered_boxes)
             else:
                 print(output[base_index:base_index + 7])
 
@@ -257,13 +267,21 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
     # allocate the Graph instance from NCAPI by passing the memory buffer
     ssd_mobilenet_graph = device.AllocateGraph(graph_data)
 
+    if ros_enabled:
+        from utils.ros_op import CameraSubscriber, DetectionPublisher
+        pub = DetectionPublisher()
+        sub = CameraSubscriber()
+
     cv2.namedWindow(cv_window_name)
     cv2.moveWindow(cv_window_name, 10,  10)
 
     exit_app = False
     while (True):
-
-        cap = cv2.VideoCapture(camera_path)
+        
+        if ros_enabled:
+            cap = sub.get_frame()
+        else:
+            cap = cv2.VideoCapture(camera_path)
 
         actual_frame_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         actual_frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -295,7 +313,7 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
                 exit_app = True
                 break
 
-            run_inference(display_image, ssd_mobilenet_graph, visualize)
+            run_inference(display_image, ssd_mobilenet_graph, visualize, pub)
 
             if (resize_output):
                 display_image = cv2.resize(display_image,

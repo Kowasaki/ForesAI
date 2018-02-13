@@ -10,7 +10,7 @@ class Box:
         self.score = score
 
     def __str__(self):
-        return "y: {}, x:{}, width: {}, height: {}, label: {}, score: {}".format(
+        return "y: {}, x:{}, width: {}, height: {}, label: {}, score: {}\n".format(
             self.y, self.x, self.width, self.height, self.label, self.score)
 
     def get_corners(self):
@@ -44,6 +44,13 @@ def parse_tf_output(frame_shape, boxes, scores, classes, threshold = 0.5):
             width = int(c*boxes[0][i][3] - c*boxes[0][i][1])
             
             parsed_boxes.append(Box(topleft_row, topleft_col, height, width, classes[0][i], scores[0][i] ))
+
+    return parsed_boxes
+
+def parse_mov_output(frame_shape, boxes, scores, classes, threshold = 0.5):
+
+    parsed_boxes = []
+    # TODO: parse the movidius boxes
 
     return parsed_boxes
 

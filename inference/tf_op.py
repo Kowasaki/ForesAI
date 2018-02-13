@@ -149,8 +149,12 @@ def run_detection(video_path,
         logger.info("Initial startup")
         cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
             mem_usage_dump, time_usage_dump, timer)
-
-    vid = WebcamVideoStream(src = video_path).start()
+    
+    if ros_enabled:
+        if not sub.is_running():
+            return Exception("[ERROR: Camera Node not running]")
+    else:
+        vid = WebcamVideoStream(src = video_path).start()
 
     r, c = vid.get_dimensions()
 
@@ -186,7 +190,7 @@ def run_detection(video_path,
                 fps = FPS().start()
 
             # Read video frame by frame and perform inference
-            while(vid.stream.isOpened()):
+            while(vid.is_running()):
                 try:
                     # the array based representation of the image will be used later in order to prepare the
                     # result image with boxes and labels on it.
