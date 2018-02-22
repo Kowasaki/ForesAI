@@ -367,6 +367,21 @@ def run_mask_detection(video_path,
                     tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(
                         tensor_name)
 
+            detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
+            detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
+            # Reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
+            real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
+            detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
+            detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
+            detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
+                detection_masks, detection_boxes, r, c)
+            detection_masks_reframed = tf.cast(
+                tf.greater(detection_masks_reframed, 0.5), tf.uint8)
+            # Follow the convention by adding back the batch dimension
+            tensor_dict['detection_masks'] = tf.expand_dims(
+                detection_masks_reframed, 0)
+            image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
+
             # Using the split model hack
             if score_node is not None and expand_node is not None:
                 score_out = detection_graph.get_tensor_by_name('Postprocessor/convert_scores:0')
@@ -395,21 +410,6 @@ def run_mask_detection(video_path,
 
                     # # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
                     curr_frame_expanded = np.expand_dims(curr_frame, axis=0)
-
-                    detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
-                    detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
-                    # Reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
-                    real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
-                    detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
-                    detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
-                    detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
-                        detection_masks, detection_boxes, curr_frame_expanded.shape[0], curr_frame_expanded.shape[1])
-                    detection_masks_reframed = tf.cast(
-                        tf.greater(detection_masks_reframed, 0.5), tf.uint8)
-                    # Follow the convention by adding back the batch dimension
-                    tensor_dict['detection_masks'] = tf.expand_dims(
-                        detection_masks_reframed, 0)
-                    image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
 
                     # Actual detection.
                     start = time.time()
