@@ -298,6 +298,234 @@ def run_detection(video_path,
 
     return labels_per_frame, boxes_per_frame
 
+def run_mask_detection(video_path,
+                       detection_graph, 
+                       label_map, 
+                       categories, 
+                       category_index, 
+                       show_window,
+                       visualize, 
+                       write_output,
+                       ros_enabled, 
+                       usage_check,
+                       score_node = None,
+                       expand_node = None):
+
+    from object_detection.utils import ops as utils_ops 
+    from PIL import Image
+    from object_detection.utils import visualization_utils as vis_util
+
+    config = tf.ConfigProto(allow_soft_placement=True)
+
+    labels_per_frame = []
+    boxes_per_frame = []
+    cpu_usage_dump = ""
+    mem_usage_dump = ""
+    time_usage_dump = ""
+
+    if ros_enabled:
+        from utils.ros_op import DetectionPublisher, CameraSubscriber
+        pub = DetectionPublisher()
+        sub = CameraSubscriber()
+
+    if usage_check:
+        timer = Timer()
+        logger.info("Initial startup")
+        cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
+            mem_usage_dump, time_usage_dump, timer)
+    
+    if ros_enabled:
+        if not sub.is_running():
+            return Exception("[ERROR: Camera Node not running]")
+    else:
+        vid = WebcamVideoStream(src = video_path).start()
+
+    r, c = vid.get_dimensions()
+
+    logger.debug("Frame width: {} height: {}".format(r,c))
+    
+    if write_output:
+        trackedVideo = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20.0, (c,r))
+        record = open("record.txt", "w")
+
+    count = 0
+
+    # Detection
+    with detection_graph.as_default():
+        with tf.Session(graph=detection_graph, config = config) as sess:
+
+            # Get handles to input and output tensors
+            ops = tf.get_default_graph().get_operations()
+            all_tensor_names = {output.name for op in ops for output in op.outputs}
+            tensor_dict = {}
+            for key in [
+                'num_detections', 'detection_boxes', 'detection_scores',
+                'detection_classes', 'detection_masks'
+            ]:
+                tensor_name = key + ':0'
+                if tensor_name in all_tensor_names:
+                    tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(
+                        tensor_name)
+
+            # Using the split model hack
+            if score_node is not None and expand_node is not None:
+                score_out = detection_graph.get_tensor_by_name('Postprocessor/convert_scores:0')
+                expand_out = detection_graph.get_tensor_by_name('Postprocessor/ExpandDims_1:0')
+                score_in = detection_graph.get_tensor_by_name('Postprocessor/convert_scores_1:0')
+                expand_in = detection_graph.get_tensor_by_name('Postprocessor/ExpandDims_1_1:0')                
+            
+            if usage_check:
+                fps = FPS().start()
+
+            # Read video frame by frame and perform inference
+            while(vid.is_running()):
+                try:
+                    # the array based representation of the image will be used later in order to prepare the
+                    # result image with boxes and labels on it.
+                    logger.debug("Frame {}".format(count))
+                    retval, curr_frame = vid.read()
+
+                    if not retval:
+                        logger.info("Video ending at frame {}".format(count))
+                        break
+
+                    if show_window:
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                            break
+
+                    # # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+                    curr_frame_expanded = np.expand_dims(curr_frame, axis=0)
+
+                    detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
+                    detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
+                    # Reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
+                    real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
+                    detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
+                    detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
+                    detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
+                        detection_masks, detection_boxes, curr_frame_expanded.shape[0], curr_frame_expanded.shape[1])
+                    detection_masks_reframed = tf.cast(
+                        tf.greater(detection_masks_reframed, 0.5), tf.uint8)
+                    # Follow the convention by adding back the batch dimension
+                    tensor_dict['detection_masks'] = tf.expand_dims(
+                        detection_masks_reframed, 0)
+                    image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
+
+                    # Actual detection.
+                    start = time.time()
+                    if score_node is None and expand_node is None:
+                        output_dict = sess.run(tensor_dict,
+                            feed_dict={image_tensor: curr_frame_expanded})
+                    else:
+                        raise Exception("Split model not supported for mask")
+                        # Split Detection in two sessions.
+                        # (score, expand) = sess.run(
+                        #     [score_out, expand_out], 
+                        #     feed_dict={image_tensor: curr_frame_expanded})
+                        # (boxes, scores, classes) = sess.run(
+                        #     [detection_boxes, detection_scores, detection_classes],
+                        #     feed_dict={score_in:score, expand_in: expand}) 
+                    end = time.time()
+
+                    boxes = output_dict['detection_boxes']
+                    scores = output_dict['detection_scores']
+                    classes =output_dict['detection_classes']
+
+                    # all outputs are float32 numpy arrays, so convert types as appropriate
+                    output_dict['num_detections'] = int(output_dict['num_detections'][0])
+                    output_dict['detection_classes'] = output_dict[
+                        'detection_classes'][0].astype(np.uint8)
+                    output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
+                    output_dict['detection_scores'] = output_dict['detection_scores'][0]
+                    output_dict['detection_masks'] = output_dict['detection_masks'][0] 
+
+                    print(output_dict['detection_masks'].shape)                   
+
+                    if usage_check:
+                        fps.update()
+                        logger.info("Session run time: {:.4f}".format(end - start))
+                        logger.info("Frame {}".format(count))
+                        cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
+                            mem_usage_dump, time_usage_dump, timer)
+                    
+                    (r,c,_) = curr_frame.shape
+                    logger.debug("image height:{}, width:{}".format(r,c))
+                    # get boxes that pass the min requirements and their pixel coordinates
+                    filtered_boxes = parse_tf_output(curr_frame.shape, boxes, scores, classes)
+
+
+                    if ros_enabled:
+                    # TODO: Send the detected info to other systems every frame
+                        logger.info("Publishing bboxes")
+                        logger.info("".join([str(i) for i in filtered_boxes]))
+                        pub.send_boxes(filtered_boxes)
+                        
+
+                    
+                    if write_output:
+                        record.write(str(count)+"\n")            
+                        for i in range(len(filtered_boxes)):
+                            record.write("{}\n".format(str(filtered_boxes[i])))
+
+                    # Visualization of the results of a detection.
+                    if visualize:
+                        # drawn_img = overlay(curr_frame, category_index, filtered_boxes)
+                        vis_util.visualize_boxes_and_labels_on_image_array(
+                            curr_frame,
+                            output_dict['detection_boxes'],
+                            output_dict['detection_classes'],
+                            output_dict['detection_scores'],
+                            category_index,
+                            instance_masks=output_dict.get('detection_masks'),
+                            use_normalized_coordinates=True,
+                            line_thickness=8)
+                        if show_window:
+                            window_name = "stream"
+                            cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+                            # cv2.imshow(window_name,drawn_img)
+                            cv2.imshow(window_name,curr_frame)
+
+                        if write_output:
+                            # trackedVideo.write(drawn_img)
+                            trackedVideo.write(curr_frame)
+                    else:
+                        logger.info("".join([str(i) for i in filtered_boxes]))
+
+                    
+                    count += 1
+
+                except KeyboardInterrupt:
+                    logger.info("Ctrl + C Pressed. Attempting graceful exit")
+                    break
+
+    if usage_check:
+        fps.stop()
+        logger.info("[USAGE] elasped time: {:.2f}".format(fps.elapsed()))
+        logger.info("[USAGE] approx. FPS: {:.2f}".format(fps.fps()))
+        logger.info("[USAGE] inferenced frames: {}".format(fps.get_frames()))
+        logger.info("[USAGE] raw frames: {}".format(vid.get_raw_frames()))
+        logger.info("[USAGE] Total Time elapsed: {:.2f} seconds".format(timer.get_elapsed_time()))
+        with open("cpu_usage.txt", "w") as c:
+            c.write(cpu_usage_dump)
+        with open("mem_usage.txt", "w") as m:
+            m.write(mem_usage_dump)
+        with open("time_usage.txt", "w") as t:
+            t.write(time_usage_dump) 
+
+    vid.stop()
+
+    logger.debug("Result: {} frames".format(count))
+    
+    if visualize:
+        cv2.destroyAllWindows()
+
+    if write_output:
+        record.close()
+        trackedVideo.release()
+
+    return labels_per_frame, boxes_per_frame
+
+
 def detect_video(video_path,
                  NUM_CLASSES,
                  PATH_TO_CKPT,

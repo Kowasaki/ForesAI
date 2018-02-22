@@ -7,10 +7,10 @@
     "ros_enabled":false,
     "library":"tensorflow",
     "model":{
-        "split_hack":true,
-        "mask_enabled": false,
+        "split_hack":false,
+        "mask_enabled": true,
         "classes": 90,
-        "model_path":"./inference_graphs/ssd_mobilenet_v1_coco_higher_threshold/frozen_inference_graph.pb",
+        "model_path":"./inference_graphs/mask_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb",
         "pbtxt": "./data/mscoco_label_map.pbtxt"
         }
 }
