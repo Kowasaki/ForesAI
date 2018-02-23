@@ -36,6 +36,7 @@ I would like to support other libraries as well so let me know if you want to he
 Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
 
 - Interface for sending detections every frame
+- Manual, model-specific hacks
 - multi-stick support for movidus
 - Add object tracker
 - ROS integration

@@ -19,11 +19,13 @@ def detect(config):
             from inference.tf_op import run_mask_detection
             run_mask_detection(config["device_path"], detection_graph, label_map, categories, category_index, 
                 config["show_stream"], config["show_stream"], config["write_output"], 
-                config["ros_enabled"], config["benchmark"], score_node = score, expand_node = expand)
+                config["ros_enabled"], config["benchmark"], graph_trace_enabled = config["model"]["graph_trace"],
+                score_node = score, expand_node = expand)
         else:
             run_detection(config["device_path"], detection_graph, label_map, categories, category_index, 
                 config["show_stream"], config["show_stream"], config["write_output"], 
-                config["ros_enabled"], config["benchmark"], score_node = score, expand_node = expand)
+                config["ros_enabled"], config["benchmark"], graph_trace_enabled = config["model"]["graph_trace"],
+                score_node = score, expand_node = expand)
     
     elif config["library"] == "movidius":
         from inference.mvnc_op import run_detection

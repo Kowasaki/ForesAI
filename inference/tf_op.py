@@ -128,6 +128,7 @@ def run_detection(video_path,
                   write_output,
                   ros_enabled, 
                   usage_check,
+                  graph_trace_enabled = False,
                   score_node = None,
                   expand_node = None):
 
@@ -143,6 +144,9 @@ def run_detection(video_path,
         from utils.ros_op import DetectionPublisher, CameraSubscriber
         pub = DetectionPublisher()
         sub = CameraSubscriber()
+
+    if graph_trace_enabled:
+        from tensorflow.python.client import timeline
 
     if usage_check:
         timer = Timer()
@@ -169,7 +173,8 @@ def run_detection(video_path,
     # Detection
     with detection_graph.as_default():
         with tf.Session(graph=detection_graph, config = config) as sess:
-
+            options = None
+            run_metadata = None
             # Definite input and output Tensors for detection_graph
             image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
             # Each box represents a part of the image where a particular object was detected.
@@ -188,6 +193,10 @@ def run_detection(video_path,
             
             if usage_check:
                 fps = FPS().start()
+            
+            if graph_trace_enabled:
+                options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+                run_metadata = tf.RunMetadata()
 
             # Read video frame by frame and perform inference
             while(vid.is_running()):
@@ -208,13 +217,15 @@ def run_detection(video_path,
                     # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
                     curr_frame_expanded = np.expand_dims(curr_frame, axis=0)
                     curr_frame_expanded = np.int8(curr_frame_expanded)
-
+                    
                     # Actual detection.
                     start = time.time()
                     if score_node is None and expand_node is None:
                         (boxes, scores, classes) = sess.run(
                             [detection_boxes, detection_scores, detection_classes],
-                            feed_dict={image_tensor: curr_frame_expanded})
+                            feed_dict={image_tensor: curr_frame_expanded}, 
+                            options=options,
+                            run_metadata=run_metadata)
                     else:
                         # Split Detection in two sessions.
                         (score, expand) = sess.run(
@@ -231,6 +242,12 @@ def run_detection(video_path,
                         logger.info("Frame {}".format(count))
                         cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
                             mem_usage_dump, time_usage_dump, timer)
+                    
+                    if graph_trace_enabled:
+                        fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+                        chrome_trace = fetched_timeline.generate_chrome_trace_format()
+                        with open('graph_timeline.json' , 'w') as f:
+                            f.write(chrome_trace)
                     
                     (r,c,_) = curr_frame.shape
                     logger.debug("image height:{}, width:{}".format(r,c))
@@ -308,6 +325,7 @@ def run_mask_detection(video_path,
                        write_output,
                        ros_enabled, 
                        usage_check,
+                       graph_trace_enabled = False,
                        score_node = None,
                        expand_node = None):
 
@@ -327,6 +345,9 @@ def run_mask_detection(video_path,
         from utils.ros_op import DetectionPublisher, CameraSubscriber
         pub = DetectionPublisher()
         sub = CameraSubscriber()
+    
+    if graph_trace_enabled:
+        from tensorflow.python.client import timeline
 
     if usage_check:
         timer = Timer()
@@ -353,7 +374,8 @@ def run_mask_detection(video_path,
     # Detection
     with detection_graph.as_default():
         with tf.Session(graph=detection_graph, config = config) as sess:
-
+            options = None
+            run_metadata = None
             # Get handles to input and output tensors
             ops = tf.get_default_graph().get_operations()
             all_tensor_names = {output.name for op in ops for output in op.outputs}
@@ -392,6 +414,10 @@ def run_mask_detection(video_path,
             if usage_check:
                 fps = FPS().start()
 
+            if graph_trace_enabled:
+                options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+                run_metadata = tf.RunMetadata()
+
             # Read video frame by frame and perform inference
             while(vid.is_running()):
                 try:
@@ -415,7 +441,9 @@ def run_mask_detection(video_path,
                     start = time.time()
                     if score_node is None and expand_node is None:
                         output_dict = sess.run(tensor_dict,
-                            feed_dict={image_tensor: curr_frame_expanded})
+                            feed_dict={image_tensor: curr_frame_expanded},
+                            options=options,
+                            run_metadata=run_metadata)
                     else:
                         raise Exception("Split model not supported for mask")
                         # Split Detection in two sessions.
@@ -439,7 +467,7 @@ def run_mask_detection(video_path,
                     output_dict['detection_scores'] = output_dict['detection_scores'][0]
                     output_dict['detection_masks'] = output_dict['detection_masks'][0] 
 
-                    print(output_dict['detection_masks'].shape)                   
+                    logger.info(output_dict['detection_masks'].shape)                   
 
                     if usage_check:
                         fps.update()
@@ -448,6 +476,12 @@ def run_mask_detection(video_path,
                         cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
                             mem_usage_dump, time_usage_dump, timer)
                     
+                    if graph_trace_enabled:
+                        fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+                        chrome_trace = fetched_timeline.generate_chrome_trace_format()
+                        with open('graph_timeline.json' , 'w') as f:
+                            f.write(chrome_trace)
+
                     (r,c,_) = curr_frame.shape
                     logger.debug("image height:{}, width:{}".format(r,c))
                     # get boxes that pass the min requirements and their pixel coordinates
