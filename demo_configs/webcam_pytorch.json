@@ -1,0 +1,14 @@
+{
+    "is_camera":true,
+    "device_path":0,
+    "show_stream":true,
+    "write_output":false,
+    "benchmark":true,
+    "ros_enabled":false,
+    "library":"pytorch",
+    "model":{
+        "model_path": "./pytorch_segmentation/erfnet.py",
+        "weights_path":"./inference_graphs/ERFnet_city/erfnet_pretrained.pth",
+        "classes":20
+        }
+}

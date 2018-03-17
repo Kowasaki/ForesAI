@@ -31,4 +31,16 @@ def detect(config):
         from inference.mvnc_op import run_detection
         run_detection(config["device_path"],config["model"]["model_path"], config["show_stream"], 
             config["ros_enabled"])        
+
+    elif config["library"] == "pytorch":
+        from inference.pytorch_op import run_detection
+        run_detection(config["device_path"],
+            config["model"]["model_path"],
+            config["model"]["weights_path"],
+            config["model"]["classes"],
+            show_window = config["show_stream"],
+            visualize = config["show_stream"], 
+            write_output = config["write_output"],
+            ros_enabled = config["ros_enabled"], 
+            usage_check = config["benchmark"])
     
