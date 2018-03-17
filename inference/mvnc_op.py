@@ -344,3 +344,6 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
 
     cv2.destroyAllWindows()
 
+class MovidiusModelLoader:
+    def __init__(self):
+        # TODO: make movidius model loader
