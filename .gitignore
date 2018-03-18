@@ -13,7 +13,7 @@ record.txt
 stream_record.txt
 train_eval.txt
 *_usage.txt
-graph_timeline.json
+graph_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
