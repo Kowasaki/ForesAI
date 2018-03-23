@@ -1,0 +1,14 @@
+{
+    "is_camera":true,
+    "device_path":"nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1024, height=(int)512,format=(string)I420, framerate=(fraction)30/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink",
+    "show_stream":true,
+    "write_output":false,
+    "benchmark":true,
+    "ros_enabled":false,
+    "library":"pytorch",
+    "model":{
+        "model_path": "./pytorch_segmentation/erfnet.py",
+        "weights_path":"./inference_graphs/ERFnet_city/erfnet_pretrained.pth",
+        "classes":20
+        }
+}
