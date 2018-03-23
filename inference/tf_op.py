@@ -19,6 +19,15 @@ from utils.visualize import overlay
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+#TODO: Finish TFModelLoader
+class TFModelLoader:
+    def __init__(self, PATH_TO_CKPT, NUM_CLASSES, pbtxt, split_model = False):
+        if not split_model:
+            self.graph = load_model(PATH_TO_CKPT)
+        else:
+            self.graph, self.score, self.expand = load_split_model(PATH_TO_CKPT)            
+        self.label_map, self.categories, self.category_index = load_label_map(NUM_CLASSES, pbtxt)
+
 def _node_name(n):
 
   if n.startswith("^"):

@@ -15,7 +15,7 @@ class InferenceBuilder:
         self.show_stream = config["show_stream"]
         self.write_output = config["write_output"]
         self.benchmark = config["benchmark"]
-        self.input = self.set_video_feed(config["ros_enabled"])
+        self.feed = self.set_video_feed(config["ros_enabled"])
         self.output = self.set_inferece_publisher(config["ros_enabled"])
         self.model = self.load_model(config)
 
@@ -54,8 +54,10 @@ class InferenceBuilder:
             raise Exception("[ERROR: Unsupported Library!]")
 
     
-    def detect():
+    def detect(self):
         #TODO: make a generalized detection workflow
-        # while self.input.is_running:
+        pass
+        # while self.feed.is_running:
+
 
     
