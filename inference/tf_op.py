@@ -11,6 +11,7 @@ from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usag
 from inference.detect import detect
 from tensorflow.core.framework import graph_pb2
 from tf_object_detection.utils import label_map_util
+from tf_object_detection.utils import ops as utils_ops 
 from utils.box_op import Box, parse_tf_output
 from utils.fps import FPS
 from utils.videostream import WebcamVideoStream
@@ -18,15 +19,6 @@ from utils.visualize import overlay
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-#TODO: Finish TFModelLoader
-class TFModelLoader:
-    def __init__(self, PATH_TO_CKPT, NUM_CLASSES, pbtxt, split_model = False):
-        if not split_model:
-            self.graph = load_model(PATH_TO_CKPT)
-        else:
-            self.graph, self.score, self.expand = load_split_model(PATH_TO_CKPT)            
-        self.label_map, self.categories, self.category_index = load_label_map(NUM_CLASSES, pbtxt)
 
 def _node_name(n):
 

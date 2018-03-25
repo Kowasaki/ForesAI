@@ -43,6 +43,7 @@ I would like to support other libraries as well so let me know if you want to he
 # To-Dos
 Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
 
+- Make framework generalizable for custom models in Tensorflow and PyTorch
 - Interface for sending detections (e.g. a Publisher independent of ROS)
 - Manual, model-specific hacks
 - multi-stick support for movidus
