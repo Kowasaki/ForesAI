@@ -74,7 +74,7 @@ def run_detection(video_path,
 
     r, c = vid.get_dimensions()
 
-    logger.debug("Frame width: {} height: {}".format(r,c))
+    logger.info("Video frame width: {} height: {}".format(r,c))
 
     if write_output:
         trackedVideo = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20.0, (c, r))
@@ -142,7 +142,7 @@ def run_detection(video_path,
 
                 if show_window:
                     window_name = "stream"
-                    cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+                    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
                     cv2.imshow(window_name,label_color)
 
                 if write_output:

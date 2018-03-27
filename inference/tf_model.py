@@ -8,7 +8,7 @@ import tensorflow as tf
 import time
 
 from benchmark.usage import Timer, get_cpu_usage, get_mem_usuage, print_cpu_usage, print_mem_usage, show_usage
-# from inference.detect import detect
+from inference.model_loader import ModelLoader
 from inference.tf_op import load_label_map, load_model, load_split_model
 from tensorflow.core.framework import graph_pb2
 from tf_object_detection.utils import label_map_util
@@ -19,7 +19,7 @@ from utils.fps import FPS
 from utils.visualize import overlay
 
 #TODO: Finish TFModelLoader
-class TFModelLoader:
+class TFModelLoader(ModelLoader):
     def __init__(self, PATH_TO_CKPT, NUM_CLASSES, pbtxt, split_model = False):
         if not split_model:
             self.graph = load_model(PATH_TO_CKPT)

@@ -41,11 +41,12 @@ I would like to support other libraries as well so let me know if you want to he
 - [PyTorch](http://pytorch.org/)
 
 # To-Dos
-Right now the list will only consist of things I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
+Right now I will only focus on features I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
 
+- Documentation
 - Make framework generalizable for custom models in Tensorflow and PyTorch
 - Interface for sending detections (e.g. a Publisher independent of ROS)
-- Manual, model-specific hacks
+- Allow the user to implement manual, model-specific hacks 
 - multi-stick support for movidus
 - Add object tracker
 - ROS integration
@@ -73,9 +74,18 @@ py -3 setup.py build
 py -3 setup.py install
 
 # Citations
+## Code
+Many thanks to all the sources cited below. All borrowed code are also cited in the same files they appear:
 
-[realtime_object_detection](https://github.com/GustavZ/realtime_object_detection)
+- [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) 
 
+- Stream related classes
+
+- Mobilenet-related hacks that greatly improved speed from [realtime_object_detection](https://github.com/GustavZ/realtime_object_detection)
+
+
+
+## Models
 "Speed/accuracy trade-offs for modern convolutional object detectors."
 Huang J, Rathod V, Sun C, Zhu M, Korattikara A, Fathi A, Fischer I, Wojna Z,
 Song Y, Guadarrama S, Murphy K, CVPR 2017
