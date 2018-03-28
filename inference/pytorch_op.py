@@ -110,6 +110,9 @@ def run_detection(video_path,
             img_tensor = convert(curr_frame)
             img_tensor = img_tensor.unsqueeze(0)
 
+            con = time.time()
+            logger.debug("img conversion time: {:.4f}".format(con - start))
+
             if (not is_cpu):
                 image = img_tensor.cuda()
 
@@ -117,12 +120,13 @@ def run_detection(video_path,
 
             outputs = model(inputs)
 
-            label = outputs[0].max(0)[1].byte().cpu().data
+            out = time.time()
+            logger.debug("output time: {:.4f}".format(out - con))
 
-            # Visualizes based off of cityscape classes
-            label_color = Colorize()(label.unsqueeze(0))
-            label_color = np.moveaxis(label_color.numpy(), 0, -1)
-            label_color = label_color[...,::-1]
+            label = outputs[0].max(0)[1].byte().data # Mask to be published
+
+            l = time.time()
+            logger.debug("labeling time: {:.4f}".format(l - out))
 
             end = time.time()
 
@@ -132,13 +136,21 @@ def run_detection(video_path,
                 logger.info("Frame {}".format(count))
                 cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
                     mem_usage_dump, time_usage_dump, timer)
-
+            
+            # TODO: Publish Segmentation
             if ros_enabled:
-                # TODO: Publish Segmentation
-                logger.info("Publishing segmengatation")
+                logger.info("Publishing segmengatation via ROS")
+            else:
+                logger.info("Publishing segmentation via custom module")
             
             # Visualization of the results of a detection.
             if visualize:
+                # Visualizes based off of cityscape classes; this step takes a ton of time!
+                label_color = Colorize()(label.unsqueeze(0))
+                label_color = np.moveaxis(label_color.numpy(), 0, -1)
+                label_color = label_color[...,::-1]
+                vis = time.time()
+                logger.debug("visualization time: {:.4f}".format(vis - end))
 
                 if show_window:
                     window_name = "stream"
@@ -149,6 +161,8 @@ def run_detection(video_path,
                     trackedVideo.write(label_color)
 
             count += 1
+
+
 
         except KeyboardInterrupt:
             logger.info("Ctrl + C Pressed. Attempting graceful exit")
