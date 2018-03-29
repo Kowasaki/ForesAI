@@ -17,7 +17,8 @@ class InferenceBuilder:
         self.benchmark = config["benchmark"]
         self.feed = self.set_video_feed(config["ros_enabled"])
         self.output = self.set_inferece_publisher(config["ros_enabled"])
-        self.model = self.load_model(config)
+        height, width = self.feed.get_dimensions()
+        self.model = self.load_model(config["model"], height, width)
 
     def set_video_feed(self, ros_enabled):
         if ros_enabled:
@@ -38,18 +39,18 @@ class InferenceBuilder:
         return None
 
 
-    def load_model(self, config):
+    def load_model(self, model_config, height, width):
 
         # Load the corresponding Loader for library
-        if config["library"] == "tensorflow":
-            from inference.tf_op import TFModelLoader
-            return TFModelLoader(config)
-        elif config["library"] == "movidius":
-            from inference.mvnc_op import MovidiusModelLoader
-            return MovidiusModelLoader(config)
-        elif config["library"] == "pytorch":
-            from inference.pytorch_op import PyTorchModelLoader
-            return PyTorchModelLoader(config)  
+        if model_config["library"] == "tensorflow":
+            from inference.loader.tf_model import TFModelLoader
+            return TFModelLoader(model_config, height, width)
+        elif model_config["library"] == "movidius":
+            from inference.loader.mvnc_model import MovidiusModelLoader
+            return MovidiusModelLoader(model_config, height, width)
+        elif model_config["library"] == "pytorch":
+            from inference.loader.pytorch_model import PyTorchModelLoader
+            return PyTorchModelLoader(model_config, height, width)  
         else:
             raise Exception("[ERROR: Unsupported Library!]")
 

@@ -9,6 +9,8 @@ This is a very early work in progress. I am looking for feedback as I want to li
 # Notice
 ForesAI supports vision-related tasks such as object detection, sematic segmentation, and instance segmenatation based on the relevant models. These APIs assume you have prepared a pre-trained model. For my TensorFlow models, all training/evaluation is done via the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I will provide the scripts I used for my own training under "training" in the very near future, but YMMV as much of it depends on your own system configurations.
 
+Orignally the library was meant to support TensorFlow only, but as you can see the scope has increased drastically as my own research demanded. I'm in the process of building a standard, library-agnostic inferface to make building new inference workflows much easier. As such, all the run_detection functions in the ops files will be depreciated in the future. Feel free to look at the **model_loader** module under **inference** to get a sense of how it is being done.
+
 Currently, ForesAI works with following deep learning models:
 
 ## Object Detection / Instance Segmentation
@@ -30,6 +32,18 @@ I would like to support other libraries as well so let me know if you want to he
         - psutil
 - OpenCV3 (your own build or pip)
 
+# Instructions
+If you don't have a model set up, feel free to use this [slightly modified SSD-mobilenetv1 model](https://drive.google.com/drive/folders/1Cwy89QCs3R2dFRxZ85TZJZFBFMtTsl0D?usp=sharing) here. You'll need both folders extracted within the "ForesAI" folder.
+
+There are two main ways to access the module. If you want to run ForesAI as a standalone module:
+
+```
+python main.py --config_path <CONFIG_PATH> 
+```
+Where CONFIG_PATH is a json file with the configurations shown in demo_configs folder. If you want to test this out on your laptop **webcam_benchmark.json** would be a good first choice. Adding the "--benchmark" flag will show graphs measuring cpu/ram usage over time.
+
+If you wish to use ForesAI as a package, you can start by running the webcam_benchmark_demo.py from your webcam to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing. For other configurations, please take a look at the *_demo.py scripts along with the respective JSON config files for how to use your own camera hardware. If using your own model, you will need to tweak the config json within the "demo_configs" folder.
+
 ## For TensorFlow:
 - [protobuf](https://github.com/google/protobuf)
 - [TensorFlow](https://www.tensorflow.org/)
@@ -44,7 +58,7 @@ I would like to support other libraries as well so let me know if you want to he
 Right now I will only focus on features I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
 
 - Documentation
-- Make framework generalizable for custom models in Tensorflow and PyTorch
+- Make framework generalizable for custom models in Tensorflow and PyTorch (Model loaders)
 - Interface for sending detections (e.g. a Publisher independent of ROS)
 - Allow the user to implement manual, model-specific hacks 
 - multi-stick support for movidus
@@ -54,24 +68,7 @@ Right now I will only focus on features I need for my project in the immediate f
 - Nvidia Tegra GPU usage monitoring (If on Jetson platform, you can just use tegrastats.sh)
 - Nvidia NVML GPU usage monitoring (can also just use nividia-smi)
 
-# Instructions
-If you don't have a model set up, feel free to use this [slightly modified SSD-mobilenetv1 model](https://drive.google.com/drive/folders/1Cwy89QCs3R2dFRxZ85TZJZFBFMtTsl0D?usp=sharing) here. You'll need both folders extracted within the "ForesAI" folder.
 
- My suggestion is to start by running the webcam_benchmark_demo.py from your webcam to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing. For other configurations, please take a look at the *_demo.py scripts along with the respective JSON config files for how to use your own camera hardware. If using your own model, you will need to tweak the config json within the "demo_configs" folder.
-
-# Training Tips (TensorFlow):
-You will need the requirements from [TensorFlow Object Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md)
-
-Please refer to the detailed tutorial at https://github.com/tensorflow/models/tree/master/research/object_detection for how to use the Object Detection API for training/evaluation
-
-### Do this before running the api or save it into bashrc:
-#### From tensorflow/models/research/
-##### For nix systems:
-export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
-
-##### For windows systems (also from research folder):
-py -3 setup.py build
-py -3 setup.py install
 
 # Citations
 ## Code
@@ -79,10 +76,9 @@ Many thanks to all the sources cited below. All borrowed code are also cited in 
 
 - [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) 
 
-- Stream related classes
+- Stream related classes: [imutils](https://github.com/jrosebr1/imutils) 
 
 - Mobilenet-related hacks that greatly improved speed from [realtime_object_detection](https://github.com/GustavZ/realtime_object_detection)
-
 
 
 ## Models

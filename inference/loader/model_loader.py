@@ -1,6 +1,8 @@
 class ModelLoader:
-    def __init__(self, **kwargs):
-        # TODO: Make interface for all loaders to inherit
+    """
+    The ModelLoader interface defines the functions which all loader classes needs to implement
+    """
+    def __init__(self, model_config):
         raise NotImplementedError
 
     def load_input(self, input):
