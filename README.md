@@ -1,8 +1,8 @@
 # ForesAI
-Lightweight Computer Vision library for using deep learning models to perform inference tasks in edge AI systems
+Lightweight Computer Vision library for intertergrating your deep learning models with camera devices to perform inference tasks.
 
 # Introduction
-Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and software engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models directly into your camera devices across different platforms. With a particular emphasis on robotic use cases, ForesAI aims to minimize resource usage so that you can run your models on as many different hardware as possible and provide you with the tools to broadcast your outputs to the rest of your AI system.
+Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models built in popular libraries directly to your camera devices across different platforms. With a particular emphasis on robotic use cases, ForesAI aims to minimize resource usage so that you can run your models on as many different hardware as possible and provide you with the tools to broadcast your outputs to the rest of your AI system.
 
 This is a very early work in progress. I am looking for feedback as I want to library to support other use cases as well. Feel free to open an issue or make a pull request as you see fit--I am looking for additional contributors as I continue to build upon the library. 
 
