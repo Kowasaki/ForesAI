@@ -1,17 +1,25 @@
 # ForesAI
 Lightweight Computer Vision library for intertergrating your deep learning models with camera devices to perform inference tasks.
 
-# Introduction
-Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models built in popular libraries directly to your camera devices across different platforms. With a particular emphasis on robotic use cases, ForesAI aims to minimize resource usage so that you can run your models on as many different hardware as possible and provide you with the tools to broadcast your outputs to the rest of your AI system.
+# Table of Contents
+[Introduction](#introduction)
+[Notice](#notice)
+[Requirements](#requirements)
+[Instructions](#instructions)
+[To-Dos](#to-dos)
+[Citations](#citations)
 
-This is a very early work in progress. I am looking for feedback as I want to library to support other use cases as well. Feel free to open an issue or make a pull request as you see fit--I am looking for additional contributors as I continue to build upon the library. 
+# Introduction
+Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models built in popular libraries directly to your camera devices across different hardware platforms. With a particular emphasis on robotic use cases, ForesAI aims to minimize resource usage so that you can run your models on as many different hardware configurations as possible and provide you with the tools to broadcast your outputs to the rest of your AI system.
+
+This is a very early work in progress. The project stems out of my own research on efficient CNNs so I'm adding features/debugging as needed. Please check [TO-Dos](#to-dos) for some upcoming tasks. However, I am looking for feedback as I want to library to support other use cases as well. Feel free to open an issue or make a pull request as you see fit--I am looking for additional contributors as I continue to build upon the library. 
 
 # Notice
-ForesAI supports vision-related tasks such as object detection, sematic segmentation, and instance segmenatation based on the relevant models. These APIs assume you have prepared a pre-trained model. For my TensorFlow models, all training/evaluation is done via the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I will provide the scripts I used for my own training under "training" in the very near future, but YMMV as much of it depends on your own system configurations.
+ForesAI supports vision-related tasks such as object detection, sematic segmentation, and instance segmenatation based on the relevant models. These APIs assume you have prepared a pre-trained model. For my TensorFlow models, all training/evaluation is done via the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I will provide the scripts I used for my own training under a different repo in the future, but YMMV as much of it depends on your own system configurations.
 
 Orignally the library was meant to support TensorFlow only, but as you can see the scope has increased drastically as my own research demanded. I'm in the process of building a standard, library-agnostic inferface to make building new inference workflows much easier. As such, all the run_detection functions in the ops files will be depreciated in the future. Feel free to look at the **model_loader** module under **inference** to get a sense of how it is being done.
 
-Currently, ForesAI works with following deep learning models:
+Currently, ForesAI works with following deep learning libraries:
 
 ## Object Detection / Instance Segmentation
 - TensorFlow models that are trained using the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) 
@@ -20,7 +28,7 @@ Currently, ForesAI works with following deep learning models:
 - [Movidius NCS](https://github.com/movidius/ncsdk/) compiled models for object detection. 
 
 ## Semantic Segmentation
--[ERFNet](https://github.com/Eromera/erfnet_pytorch) 
+- [ERFNet](https://github.com/Eromera/erfnet_pytorch) 
 
 I would like to support other libraries as well so let me know if you want to help in this endeaver!
 
@@ -31,6 +39,16 @@ I would like to support other libraries as well so let me know if you want to he
         - numpy
         - psutil
 - OpenCV3 (your own build or pip)
+
+## For TensorFlow:
+- [protobuf](https://github.com/google/protobuf)
+- [TensorFlow](https://www.tensorflow.org/)
+
+## For Movidius:
+- [Movidius SDK](https://movidius.github.io/ncsdk/)
+
+## For PyTorch:
+- [PyTorch](http://pytorch.org/)
 
 # Instructions
 If you don't have a model set up, feel free to use this [slightly modified SSD-mobilenetv1 model](https://drive.google.com/drive/folders/1Cwy89QCs3R2dFRxZ85TZJZFBFMtTsl0D?usp=sharing) here. You'll need both folders extracted within the "ForesAI" folder.
@@ -44,15 +62,6 @@ Where CONFIG_PATH is a json file with the configurations shown in demo_configs f
 
 If you wish to use ForesAI as a package, you can start by running the webcam_benchmark_demo.py from your webcam to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing. For other configurations, please take a look at the *_demo.py scripts along with the respective JSON config files for how to use your own camera hardware. If using your own model, you will need to tweak the config json within the "demo_configs" folder.
 
-## For TensorFlow:
-- [protobuf](https://github.com/google/protobuf)
-- [TensorFlow](https://www.tensorflow.org/)
-
-## For Movidius:
-- [Movidius SDK](https://movidius.github.io/ncsdk/)
-
-## For PyTorch:
-- [PyTorch](http://pytorch.org/)
 
 # To-Dos
 Right now I will only focus on features I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
@@ -80,6 +89,7 @@ Many thanks to all the sources cited below. All borrowed code are also cited in 
 
 - Mobilenet-related hacks that greatly improved speed from [realtime_object_detection](https://github.com/GustavZ/realtime_object_detection)
 
+- [ERFNet implementation and helper functions](https://github.com/Eromera/erfnet_pytorch)
 
 ## Models
 "Speed/accuracy trade-offs for modern convolutional object detectors."
