@@ -26,7 +26,7 @@ class TFModelLoader(ModelLoader):
         NUM_CLASSES = model_config["classes"]
         pbtxt = model_config["pbtxt"]
         split_model = model_config["split_hack"]
-
+        
         if not split_model:
             self.graph = load_model(PATH_TO_CKPT)
         else:
@@ -75,15 +75,11 @@ class TFModelLoader(ModelLoader):
             self.score_in = self.detection_graph.get_tensor_by_name('Postprocessor/convert_scores_1:0')
             self.expand_in = self.detection_graph.get_tensor_by_name('Postprocessor/ExpandDims_1_1:0')                
         
-        # if usage_check:
-        #     fps = FPS().start()
-
-        # if graph_trace_enabled:
-        #     options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-        #     run_metadata = tf.RunMetadata()
-
-
-    def load_input(self, input):
+        if model_config["graph_trace"]:
+            self.options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+            self.run_metadata = tf.RunMetadata()
+            
+    def inference(self, input):
         
         curr_frame_expanded = np.expand_dims(input, axis=0)
 
@@ -94,13 +90,16 @@ class TFModelLoader(ModelLoader):
                 run_metadata=self.run_metadata)
         else:
             # Split Detection in two sessions.
-            (score, expand) = self.sess.run(
-                [self.score_out, self.expand_out], 
-                feed_dict={self.image_tensor: curr_frame_expanded})
-            (boxes, scores, classes) = self.sess.run(
-                [detection_boxes, detection_scores, detection_classes],
-                feed_dict={score_in:score, expand_in: expand}) 
+            # TODO: implement the hack using the ModelLoader framework
+            raise NotImplementedError
+            # (score, expand) = self.sess.run(
+            #     [self.score_out, self.expand_out], 
+            #     feed_dict={self.image_tensor: curr_frame_expanded})
+            # (boxes, scores, classes) = self.sess.run(
+            #     [detection_boxes, detection_scores, detection_classes],
+            #     feed_dict={score_in:score, expand_in: expand}) 
 
+        # TODO: Just use the output_dict for visualization so these can be removed
         boxes = output_dict['detection_boxes']
         scores = output_dict['detection_scores']
         classes =output_dict['detection_classes']
@@ -111,7 +110,12 @@ class TFModelLoader(ModelLoader):
             'detection_classes'][0].astype(np.uint8)
         output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
         output_dict['detection_scores'] = output_dict['detection_scores'][0]
-        output_dict['detection_masks'] = output_dict['detection_masks'][0] 
+        if 'detection_masks' in output_dict:
+            output_dict['detection_masks'] = output_dict['detection_masks'][0] 
+
+        return output_dict, (boxes, scores, classes)
+
+
         
 
 

@@ -17,8 +17,6 @@ from utils.fps import FPS
 from utils.videostream import WebcamVideoStream
 from utils.visualize import overlay
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 def _node_name(n):
 
@@ -133,6 +131,9 @@ def run_detection(video_path,
                   score_node = None,
                   expand_node = None):
 
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
     config = tf.ConfigProto(allow_soft_placement=True)
 
     labels_per_frame = []
@@ -330,9 +331,12 @@ def run_mask_detection(video_path,
                        score_node = None,
                        expand_node = None):
 
-    from object_detection.utils import ops as utils_ops 
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    from tf_object_detection.utils import ops as utils_ops 
     from PIL import Image
-    from object_detection.utils import visualization_utils as vis_util
+    from tf_object_detection.utils import visualization_utils as vis_util
 
     config = tf.ConfigProto(allow_soft_placement=True)
 

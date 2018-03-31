@@ -5,9 +5,6 @@ class ModelLoader:
     def __init__(self, model_config):
         raise NotImplementedError
 
-    def load_input(self, input):
-        raise NotImplementedError
-
-    def get_output(self):
+    def inference(self, input):
         raise NotImplementedError
 

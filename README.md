@@ -2,17 +2,17 @@
 Lightweight Computer Vision library for intertergrating your deep learning models with camera devices to perform inference tasks.
 
 # Table of Contents
-[Introduction](#introduction)
-[Notice](#notice)
-[Requirements](#requirements)
-[Instructions](#instructions)
-[To-Dos](#to-dos)
-[Citations](#citations)
+- [Introduction](#introduction)
+- [Notice](#notice)
+- [Requirements](#requirements)
+- [Instructions](#instructions)
+- [To-Dos](#to-dos)
+- [Citations](#citations)
 
 # Introduction
 Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models built in popular libraries directly to your camera devices across different hardware platforms. With a particular emphasis on robotic use cases, ForesAI aims to minimize resource usage so that you can run your models on as many different hardware configurations as possible and provide you with the tools to broadcast your outputs to the rest of your AI system.
 
-This is a very early work in progress. The project stems out of my own research on efficient CNNs so I'm adding features/debugging as needed. Please check [TO-Dos](#to-dos) for some upcoming tasks. However, I am looking for feedback as I want to library to support other use cases as well. Feel free to open an issue or make a pull request as you see fit--I am looking for additional contributors as I continue to build upon the library. 
+This is a very early work in progress. The project stems out of my own research on efficient CNNs so I'm adding features/debugging as needed. Please check [To-Dos](#to-dos) for some upcoming tasks. However, I am looking for feedback as I want to library to support other use cases as well. Feel free to open an issue or make a pull request as you see fit--I am looking for additional contributors as I continue to build upon the library. 
 
 # Notice
 ForesAI supports vision-related tasks such as object detection, sematic segmentation, and instance segmenatation based on the relevant models. These APIs assume you have prepared a pre-trained model. For my TensorFlow models, all training/evaluation is done via the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection). I will provide the scripts I used for my own training under a different repo in the future, but YMMV as much of it depends on your own system configurations.
@@ -33,21 +33,23 @@ Currently, ForesAI works with following deep learning libraries:
 I would like to support other libraries as well so let me know if you want to help in this endeaver!
 
 # Requirements
-## Must haves:
+Must haves:
 - Python 3 (Python 2 might still work, but is untested)
     - Following packages:
         - numpy
         - psutil
 - OpenCV3 (your own build or pip)
 
-## For TensorFlow:
+For TensorFlow:
+- Pillow package
 - [protobuf](https://github.com/google/protobuf)
 - [TensorFlow](https://www.tensorflow.org/)
 
-## For Movidius:
+For Movidius:
 - [Movidius SDK](https://movidius.github.io/ncsdk/)
 
-## For PyTorch:
+For PyTorch:
+- Pillow package
 - [PyTorch](http://pytorch.org/)
 
 # Instructions
@@ -58,7 +60,7 @@ There are two main ways to access the module. If you want to run ForesAI as a st
 ```
 python main.py --config_path <CONFIG_PATH> 
 ```
-Where CONFIG_PATH is a json file with the configurations shown in demo_configs folder. If you want to test this out on your laptop **webcam_benchmark.json** would be a good first choice. Adding the "--benchmark" flag will show graphs measuring cpu/ram usage over time.
+Where CONFIG_PATH is a json file with the configurations shown in demo_configs folder. If you want to test this out on your laptop **webcam_benchmark.json** would be a good first choice. Adding the "--benchmark" flag will show graphs measuring cpu/ram usage over time. One thing to notice is that the **device_path** in the config does not have to be an actual camera--a recorded video will work as well!
 
 If you wish to use ForesAI as a package, you can start by running the webcam_benchmark_demo.py from your webcam to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing. For other configurations, please take a look at the *_demo.py scripts along with the respective JSON config files for how to use your own camera hardware. If using your own model, you will need to tweak the config json within the "demo_configs" folder.
 
