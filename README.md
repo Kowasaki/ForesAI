@@ -6,6 +6,7 @@ Lightweight Computer Vision library for intertergrating your deep learning model
 - [Notice](#notice)
 - [Requirements](#requirements)
 - [Instructions](#instructions)
+- [Benchmarks](#benchmarks)
 - [To-Dos](#to-dos)
 - [Citations](#citations)
 
@@ -63,6 +64,30 @@ python main.py --config_path <CONFIG_PATH>
 Where CONFIG_PATH is a json file with the configurations shown in demo_configs folder. If you want to test this out on your laptop **webcam_benchmark.json** would be a good first choice. Adding the "--benchmark" flag will show graphs measuring cpu/ram usage over time. One thing to notice is that the **device_path** in the config does not have to be an actual camera--a recorded video will work as well!
 
 If you wish to use ForesAI as a package, you can start by running the webcam_benchmark_demo.py from your webcam to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing. For other configurations, please take a look at the *_demo.py scripts along with the respective JSON config files for how to use your own camera hardware. If using your own model, you will need to tweak the config json within the "demo_configs" folder.
+
+# Benchmarks
+These are the best benchmarks I got based on averages over a 1-minute stream. It is **very** likely that all of these can be improved with specific model-based hacks. There's a lot of good work done with the SSD-Mobilenet [here](https://github.com/GustavZ/realtime_object_detection)
+
+**Jetson TX2**
+|              |Frames per Second | GPU % | CPU % | RAM (MB) |
+|------------- |:--------------- :|:-----:|:-----:|---------:|
+|SSD-Mobilenet (TensorFlow)|17|todo|todo|450|
+|SSD-Mobilenet (Movidius)|30|0|todo|todo|
+|Mask-RCNN|Not Happening|N/A|N/A|OOM|
+|ERFnet|12.5|todo|todo|2400|
+|ResNet 18-8|todo|todo|todo|todo|
+|ResNet 34-8|todo|todo|todo|todo|
+
+**Nvidia GTX 1070; i7; 16 GB RAM**
+|              |Frames per Second | GPU % | CPU % | RAM (MB) |
+|------------- |:--------------- :|:-----:|:-----:|---------:|
+|SSD-Mobilenet (TensorFlow)|55|todo|todo|450|
+|SSD-Mobilenet (Movidius)|Not tested|Not tested|Not tested|Not tested|
+|Mask-RCNN|1.7|100%|todo|16|
+|ERFnet|todo|todo|todo|2400|
+|ResNet 18-8|todo|todo|todo|todo|
+|ResNet 34-8|todo|todo|todo|todo|
+
 
 
 # To-Dos
