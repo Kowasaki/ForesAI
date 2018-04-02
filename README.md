@@ -69,8 +69,9 @@ If you wish to use ForesAI as a package, you can start by running the webcam_ben
 These are the best benchmarks I got based on averages over a 1-minute stream. It is **very** likely that all of these can be improved with specific model-based hacks. There's a lot of good work done with the SSD-Mobilenet [here](https://github.com/GustavZ/realtime_object_detection)
 
 **Jetson TX2**
-|              |Frames per Second | GPU % | CPU % | RAM (MB) |
-|------------- |:--------------- :|:-----:|:-----:|---------:|
+
+|             |Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) |
+|:-----------:|:---------------:|:------------:|:-----:|:--------:|
 |SSD-Mobilenet (TensorFlow)|17|todo|todo|450|
 |SSD-Mobilenet (Movidius)|30|0|todo|todo|
 |Mask-RCNN|Not Happening|N/A|N/A|OOM|
@@ -79,8 +80,9 @@ These are the best benchmarks I got based on averages over a 1-minute stream. It
 |ResNet 34-8|todo|todo|todo|todo|
 
 **Nvidia GTX 1070; i7; 16 GB RAM**
-|              |Frames per Second | GPU % | CPU % | RAM (MB) |
-|------------- |:--------------- :|:-----:|:-----:|---------:|
+
+|             |Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) |
+|:-----------:|:---------------:|:------------:|:-----:|:--------:|
 |SSD-Mobilenet (TensorFlow)|55|todo|todo|450|
 |SSD-Mobilenet (Movidius)|Not tested|Not tested|Not tested|Not tested|
 |Mask-RCNN|1.7|100%|todo|16|
