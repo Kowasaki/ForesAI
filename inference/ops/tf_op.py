@@ -286,6 +286,10 @@ def run_detection(video_path,
                     
                     count += 1
 
+                    # # Quick benchmarking
+                    # if timer.get_elapsed_time() >= 60:
+                    #     break
+
                 except KeyboardInterrupt:
                     logger.info("Ctrl + C Pressed. Attempting graceful exit")
                     break
@@ -532,6 +536,10 @@ def run_mask_detection(video_path,
 
                     
                     count += 1
+
+                    # # Quick benchmarking
+                    # if timer.get_elapsed_time() >= 60:
+                    #     break
 
                 except KeyboardInterrupt:
                     logger.info("Ctrl + C Pressed. Attempting graceful exit")

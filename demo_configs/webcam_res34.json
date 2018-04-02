@@ -1,0 +1,15 @@
+{
+    "is_camera":true,
+    "device_path":0,
+    "show_stream":true,
+    "write_output":false,
+    "benchmark":true,
+    "ros_enabled":false,
+    "library":"pytorch",
+    "model":{
+        "model_path": "./pytorch_segmentation/resnet_dilated.py",
+        "model_name": "Resnet34_8s",
+        "weights_path":"./inference_graphs/resnet34_city/resnet_34_8s_cityscapes_best.pth",
+        "classes":20
+        }
+}

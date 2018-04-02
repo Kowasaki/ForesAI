@@ -20,7 +20,7 @@ ForesAI supports vision-related tasks such as object detection, sematic segmenta
 
 Orignally the library was meant to support TensorFlow only, but as you can see the scope has increased drastically as my own research demanded. I'm in the process of building a standard, library-agnostic inferface to make building new inference workflows much easier. As such, all the run_detection functions in the ops files will be depreciated in the future. Feel free to look at the **model_loader** module under **inference** to get a sense of how it is being done.
 
-Currently, ForesAI works with following deep learning libraries:
+Currently, ForesAI works with following vision tasks:
 
 ## Object Detection / Instance Segmentation
 - TensorFlow models that are trained using the [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) 
@@ -30,12 +30,14 @@ Currently, ForesAI works with following deep learning libraries:
 
 ## Semantic Segmentation
 - [ERFNet](https://github.com/Eromera/erfnet_pytorch) 
+- [Resnet18 8s](https://github.com/warmspringwinds/pytorch-segmentation-detection)
+- [Resnet34 8s](https://github.com/warmspringwinds/pytorch-segmentation-detection)
 
 I would like to support other libraries as well so let me know if you want to help in this endeaver!
 
 # Requirements
 Must haves:
-- Python 3 (Python 2 might still work, but is untested)
+- Python 3.5 or above (any other version will require minor fixes)
     - Following packages:
         - numpy
         - psutil
@@ -79,16 +81,17 @@ These are the best benchmarks I got based on averages over a 1-minute stream. It
 |ResNet 18-8|todo|todo|todo|
 |ResNet 34-8|todo|todo|todo|
 
-**Nvidia GeForce GTX 1070; i7; 16 GB RAM**
+**Nvidia GeForce GTX 1070; i7; 16 GB RAM 640x480**
 
 |             |Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) |
 |:-----------:|:---------------:|:------------:|:-----:|:--------:|
-|SSD-Mobilenet (TensorFlow)|55|todo|todo|450|
+|SSD-Mobilenet (TensorFlow)|32.20|7289|43.75|1831|
+|SSD-Mobilenet (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|
 |SSD-Mobilenet (Movidius)|Not tested|Not tested|Not tested|Not tested|
-|Mask-RCNN|1.7|100%|todo|16|
-|ERFnet|todo|todo|todo|2400|
-|ResNet 18-8|todo|todo|todo|todo|
-|ResNet 34-8|todo|todo|todo|todo|
+|Mask-RCNN|14.68|7281|23.53|1949|
+|ERFnet|41.29|591|35.41|2194|
+|ResNet 18-8|29.08|643|29|2035|
+|ResNet 34-8|16.17|751|22.16|2033|
 
 
 
@@ -110,7 +113,7 @@ Right now I will only focus on features I need for my project in the immediate f
 
 # Citations
 ## Code
-Many thanks to all the sources cited below. All borrowed code are also cited in the same files they appear:
+Many thanks to all the sources cited below. Please feel free to contact me if you have any questions/concerns:
 
 - [TensorFlow Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection) 
 
@@ -119,6 +122,8 @@ Many thanks to all the sources cited below. All borrowed code are also cited in 
 - Mobilenet-related hacks that greatly improved speed from [realtime_object_detection](https://github.com/GustavZ/realtime_object_detection)
 
 - [ERFNet implementation and helper functions](https://github.com/Eromera/erfnet_pytorch)
+
+- [Image Segmentation and Object Detection in Pytorch](https://github.com/warmspringwinds/pytorch-segmentation-detection)
 
 ## Models
 "Speed/accuracy trade-offs for modern convolutional object detectors."
@@ -129,6 +134,12 @@ Song Y, Guadarrama S, Murphy K, CVPR 2017
 
 "ERFNet: Efficient Residual Factorized ConvNet for Real-time Semantic Segmentation", E. Romera, J. M. Alvarez, L. M. Bergasa and R. Arroyo, Transactions on Intelligent Transportation Systems (T-ITS), December 2017. [pdf](http://www.robesafe.uah.es/personal/eduardo.romera/pdfs/Romera17tits.pdf)
 
+@article{pakhomov2017deep,
+  title={Deep Residual Learning for Instrument Segmentation in Robotic Surgery},
+  author={Pakhomov, Daniil and Premachandran, Vittal and Allan, Max and Azizian, Mahdi and Navab, Nassir},
+  journal={arXiv preprint arXiv:1703.08580},
+  year={2017}
+}
 
 
 

@@ -11,7 +11,7 @@
         "mask_enabled": false,
         "graph_trace": false,
         "classes": 90,
-        "model_path":"./inference_graphs/ssd_mobilenet_v1_coco_higher_threshold/frozen_inference_graph.pb",
+        "model_path":"./inference_graphs/ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb",
         "pbtxt": "./data/mscoco_label_map.pbtxt"
         }
 }

@@ -40,6 +40,7 @@ def detect(config):
         from inference.ops.pytorch_op import run_detection
         run_detection(config["device_path"],
             config["model"]["model_path"],
+            config["model"]["model_name"],
             config["model"]["weights_path"],
             config["model"]["classes"],
             show_window = config["show_stream"],

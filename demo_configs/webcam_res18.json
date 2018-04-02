@@ -7,8 +7,9 @@
     "ros_enabled":false,
     "library":"pytorch",
     "model":{
-        "model_path": "./pytorch_segmentation/erfnet.py",
-        "weights_path":"./inference_graphs/ERFnet_city/erfnet_pretrained.pth",
+        "model_path": "./pytorch_segmentation/resnet_dilated.py",
+        "model_name": "Resnet18_8s",
+        "weights_path":"./inference_graphs/resnet18_city/resnet_18_8s_cityscapes_best.pth",
         "classes":20
         }
 }

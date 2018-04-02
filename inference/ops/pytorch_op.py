@@ -15,8 +15,7 @@ from torchvision.transforms import ToTensor, ToPILImage
 
 from PIL import Image
 
-from pytorch_segmentation.erfnet import ERFNet
-from pytorch_segmentation.transform import Relabel, ToLabel, Colorize
+from pytorch_segmentation.transform import Colorize
 
 from utils.box_op import Box, parse_tf_output
 from utils.fps import FPS
@@ -29,14 +28,20 @@ logger = logging.getLogger(__name__)
 
 def load_my_state_dict(model, state_dict):  #custom function to load model when not all dict elements
     own_state = model.state_dict()
+    # for k in own_state:
+    #     print(k)
     for name, param in state_dict.items():
+        # if "module" not in name:
+        #     name = "module.{}".format(name)
         if name not in own_state:
-                continue
+            logger.warning("element {} not found!".format(name))
+            continue
         own_state[name].copy_(param)
     return model
 
 def run_detection(video_path,
                   model_path,
+                  model_name,
                   weights_path, 
                   classes,
                   show_window = True,
@@ -45,8 +50,14 @@ def run_detection(video_path,
                   is_cpu = False,
                   ros_enabled = False, 
                   usage_check = False):
-        
-    model = ERFNet(classes)
+
+    # Calling the class of the model 
+    spec = importlib.util.spec_from_file_location(model_name, model_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    Net = getattr(mod, model_name)
+
+    model = Net(classes)
     model = torch.nn.DataParallel(model)
     model = load_my_state_dict(model, torch.load(weights_path))
     model.eval()
@@ -123,7 +134,7 @@ def run_detection(video_path,
             out = time.time()
             logger.debug("output time: {:.4f}".format(out - con))
 
-            label = outputs[0].max(0)[1].byte().data # Mask to be published
+            label = outputs[0].max(0)[1].byte().cpu().data # Mask to be published
 
             l = time.time()
             logger.debug("labeling time: {:.4f}".format(l - out))
@@ -162,7 +173,9 @@ def run_detection(video_path,
 
             count += 1
 
-
+            # # Quick benchmarking
+            # if timer.get_elapsed_time() >= 60:
+            #     break
 
         except KeyboardInterrupt:
             logger.info("Ctrl + C Pressed. Attempting graceful exit")
