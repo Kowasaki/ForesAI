@@ -70,16 +70,16 @@ These are the best benchmarks I got based on averages over a 1-minute stream. It
 
 **Jetson TX2**
 
-|             |Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) |
-|:-----------:|:---------------:|:------------:|:-----:|:--------:|
-|SSD-Mobilenet (TensorFlow)|17|todo|todo|450|
-|SSD-Mobilenet (Movidius)|30|0|todo|todo|
-|Mask-RCNN|Not Happening|N/A|N/A|OOM|
-|ERFnet|12.5|todo|todo|2400|
-|ResNet 18-8|todo|todo|todo|todo|
-|ResNet 34-8|todo|todo|todo|todo|
+|             |Frames per Second| CPU % | Combined RAM (MB) |
+|:-----------:|:---------------:|:-----:|:-----------------:|
+|SSD-Mobilenet (TensorFlow)|17|todo|450|
+|SSD-Mobilenet (Movidius)|30|todo|todo|
+|Mask-RCNN|Not Happening|N/A|OOM|
+|ERFnet|12.5|todo|2400|
+|ResNet 18-8|todo|todo|todo|
+|ResNet 34-8|todo|todo|todo|
 
-**Nvidia GTX 1070; i7; 16 GB RAM**
+**Nvidia GeForce GTX 1070; i7; 16 GB RAM**
 
 |             |Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) |
 |:-----------:|:---------------:|:------------:|:-----:|:--------:|
