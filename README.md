@@ -1,5 +1,5 @@
 # ForesAI
-Lightweight Computer Vision library for intertergrating your deep learning models with camera devices to perform inference tasks.
+Lightweight Computer Vision library for integrating your deep learning models with camera devices to perform inference tasks.
 
 # Table of Contents
 - [Introduction](#introduction)
@@ -82,6 +82,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. It
 |ResNet 34-8**|todo|todo|todo|
 
 *Resolution 1280x720 Measurement less accurate due to not using system tools instead of benchmarking module
+
 **Both ResNet 18 and Resnet 34 requires further optimization--it seems that too many threads were spawn during upsampling
 
 **Nvidia GeForce GTX 1070; i7; 16 GB RAM; Resolution 640x480**
