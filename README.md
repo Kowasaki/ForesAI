@@ -1,5 +1,6 @@
 # ForesAI
 Lightweight Computer Vision library for intertergrating your deep learning models with camera devices to perform inference tasks.
+<<<<<<< HEAD
 
 # Table of Contents
 - [Introduction](#introduction)
@@ -12,6 +13,11 @@ Lightweight Computer Vision library for intertergrating your deep learning model
 
 # Introduction
 Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models built in popular libraries directly to your camera devices across different hardware platforms. With a particular emphasis on robotic use cases, ForesAI aims to minimize resource usage so that you can run your models on as many different hardware configurations as possible and provide you with the tools to broadcast your outputs to the rest of your AI system.
+=======
+
+# Introduction
+Applications that utilizes machine learning models for vision tasks has been growing rapidly in recent years, and thus the need for tools that integrate between the data science and engineering pipelines. ForesAI aims to be the bridge the gap between the two by providing a library with simple APIs for you to apply your machine learning models built in popular libraries directly to your camera devices across different platforms. With a particular emphasis on robotic use cases, ForesAI aims to minimize resource usage so that you can run your models on as many different hardware as possible and provide you with the tools to broadcast your outputs to the rest of your AI system.
+>>>>>>> 169bcfe3fe91adf54a8328311de7ff5d9e1d9e0d
 
 This is an early work in progress. The project stems out of my own research on efficient CNNs so I'm adding features/debugging as needed. Please check [To-Dos](#to-dos) for some upcoming tasks. However, I am looking for feedback as I want to library to support other use cases as well. Feel free to open an issue or make a pull request as you see fit--I am looking for additional contributors as I continue to build upon the library. 
 
