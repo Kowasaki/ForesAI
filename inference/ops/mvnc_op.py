@@ -313,7 +313,7 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
                 exit_app = True
                 break
 
-            run_inference(display_image, ssd_mobilenet_graph, visualize, pub)
+            run_inference(display_image, ssd_mobilenet_graph, visualize, ros_enabled)
 
             if (resize_output):
                 display_image = cv2.resize(display_image,
