@@ -1,4 +1,4 @@
-
+from inference.inference_builder import InferenceBuilder
 
 def detect(config):
     """
@@ -48,3 +48,6 @@ def detect(config):
             write_output = config["write_output"],
             ros_enabled = config["ros_enabled"], 
             usage_check = config["benchmark"])
+
+        # inference = InferenceBuilder(config)
+        # inference.detect()

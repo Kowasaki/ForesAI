@@ -1,3 +1,4 @@
+import cv2
 import logging
 import numpy as np
 import time 
@@ -14,19 +15,21 @@ class InferenceBuilder:
         self.logger = logging.getLogger(__name__)
         self.is_camera = config["is_camera"]
         self.video_path = config["device_path"]
+        self.task = config["task"]
         self.show_stream = config["show_stream"]
         self.write_output = config["write_output"]
         self.benchmark = config["benchmark"]
-        self.feed = self.set_video_feed(config["ros_enabled"])
-        self.output = self.set_inferece_publisher(config["ros_enabled"])
+        self.ros_enabled = config["ros_enabled"]
+        self.feed = self._set_video_feed(config["ros_enabled"])
+        self.output = self._set_inferece_publisher(config["ros_enabled"])
         self.height, self.width = self.feed.get_dimensions()
-        self.model = self.load_model(config["model"], self.height, self.width)
+        self.model = self._load_model(config["model"], self.height, self.width)
         self.graph_trace = False
 
         if config["model"]["graph_trace"] is not None:
             self. graph_trace = True
 
-    def set_video_feed(self, ros_enabled):
+    def _set_video_feed(self, ros_enabled):
         if ros_enabled:
             from utils.ros_op import CameraSubscriber
             sub = CameraSubscriber() 
@@ -37,7 +40,7 @@ class InferenceBuilder:
         return WebcamVideoStream(src = self.video_path).start()
 
 
-    def set_inferece_publisher(self, ros_enabled):
+    def _set_inferece_publisher(self, ros_enabled):
         if ros_enabled:
             from utils.ros_op import DetectionPublisher
             return DetectionPublisher()
@@ -45,7 +48,7 @@ class InferenceBuilder:
         return None
 
 
-    def load_model(self, model_config, height, width):
+    def _load_model(self, model_config, height, width):
 
         # Load the corresponding Loader for library
         if model_config["library"] == "tensorflow":
@@ -65,7 +68,27 @@ class InferenceBuilder:
         else:
             raise Exception("[ERROR: Unsupported Library!]")
 
-    
+    def _visualize(self, task, output):
+        # TODO: finish this; make visualization generalizable
+        if task == "detect":
+            pass
+        elif task == "instance":
+            pass
+        elif task == "segmentation":
+            from pytorch_segmentation.transform import Colorize
+            # Visualizes based off of cityscape classes; this step takes a ton of time!
+            label_color = Colorize()(ouput.unsqueeze(0))
+            label_color = np.moveaxis(label_color.numpy(), 0, -1)
+            label_color = label_color[...,::-1]
+
+            if self.show_stream:
+                window_name = "stream"
+                cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+                cv2.imshow(window_name,label_color)
+
+            if self.write_output:
+                self.trackedVideo.write(label_color)
+
     def detect(self):
         #TODO: make a generalized detection workflow
         labels_per_frame = []
@@ -81,8 +104,8 @@ class InferenceBuilder:
         self.logger.debug("Frame width: {} height: {}".format(self.width, self.height))
 
         if self.write_output:
-            trackedVideo = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20.0, (c,r))
-            record = open("record.txt", "w")
+            self.trackedVideo = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20.0, (c,r))
+            self.record = open("record.txt", "w")
 
         count = 0
 
@@ -109,7 +132,7 @@ class InferenceBuilder:
 
                 # Actual detection.
                 start = time.time()
-                self.model.inference(curr_frame_expanded)            
+                output = self.model.inference(curr_frame_expanded)            
                 end = time.time()
 
                 if self.benchmark:
@@ -117,7 +140,18 @@ class InferenceBuilder:
                     self.logger.info("Session run time: {:.4f}".format(end - start))
                     self.logger.info("Frame {}".format(count))
                     usage.get_usage()
-            
+                
+                # TODO: Publish Output
+                if self.ros_enabled:
+                    self.logger.info("Publishing via ROS")
+                else:
+                    self.logger.info("Publishing via custom module")
+                
+                if self.show_stream:
+                    #TODO: set which type of visualization to use based on task 
+                    self._visualize(self.task, output)
+                
+                count += 1
 
             except KeyboardInterrupt:
                 self.logger.info("Ctrl + C Pressed. Attempting graceful exit")

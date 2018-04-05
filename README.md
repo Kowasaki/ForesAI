@@ -43,14 +43,13 @@ Must haves:
 - OpenCV3 (your own build or pip)
 
 For TensorFlow:
-- Pillow (PIL)
-- [protobuf](https://github.com/google/protobuf)
+- Pillow (PIL) (For instance segmentation)
 - [TensorFlow](https://www.tensorflow.org/)
 
 For Movidius:
 - [Movidius SDK](https://movidius.github.io/ncsdk/)
 
-For PyTorch:
+For PyTorch (Currently, only GPU mode w/CUDA is supported at this time):
 - Pillow (PIL)
 - [PyTorch](http://pytorch.org/)
 
@@ -105,6 +104,7 @@ Right now I will only focus on features I need for my project in the immediate f
 - Make framework generalizable for custom models in Tensorflow and PyTorch (Model loaders)
 - Interface for sending detections (e.g. a Publisher independent of ROS)
 - Allow the user to implement manual, model-specific hacks 
+- Standardizing visualization for each task
 - multi-stick support for movidus
 - Add object tracker
 - ROS integration
