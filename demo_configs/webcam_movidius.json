@@ -1,0 +1,20 @@
+{
+    "is_camera":true,
+    "device_path":0,
+    "task": "detection",
+    "show_stream":true,
+    "write_output":false,
+    "benchmark":false,
+    "ros_enabled":false,
+    "library":"movidius",
+    "model":{
+        "classes": 21,
+        "labels": [ "background",
+            "aeroplane", "bicycle", "bird", "boat",
+            "bottle", "bus", "car", "cat", "chair",
+            "cow", "diningtable", "dog", "horse",
+            "motorbike", "person", "pottedplant",
+            "sheep", "sofa", "train", "tvmonitor"],
+        "model_path":"graph"
+        }
+}

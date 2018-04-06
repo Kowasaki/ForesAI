@@ -1,8 +1,10 @@
 from inference.inference_builder import InferenceBuilder
 
-def detect(config):
+def old_detect(config):
     """
-    Detect takes in a config file and determines which deep learning library and task to perform
+    The old detect function. Takes in a config file and determines which deep learning library 
+    and task to perform
+
     config: config json with all the necessary intructions
     """
 
@@ -48,6 +50,18 @@ def detect(config):
             write_output = config["write_output"],
             ros_enabled = config["ros_enabled"], 
             usage_check = config["benchmark"])
+    else:
+        raise Exception("Library not supported!")
 
-        # inference = InferenceBuilder(config)
-        # inference.detect()
+def detect(config):
+    """
+    Detect takes in a config file and determines which deep learning library and task to perform
+    config: config json with all the necessary intructions
+    
+    Currently, the old detect is called for libraries where the loader class hasn't been completed yet
+    """
+    if config["library"] == "pytorch":
+        inference = InferenceBuilder(config)
+        inference.detect()
+    else:
+        old_detect(config)

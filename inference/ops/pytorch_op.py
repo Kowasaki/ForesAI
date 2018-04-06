@@ -134,7 +134,11 @@ def run_detection(video_path,
             out = time.time()
             logger.debug("output time: {:.4f}".format(out - con))
 
-            label = outputs[0].max(0)[1].byte().cpu().data # Mask to be published
+            # Visualization only works on cpu tensor
+            if visualize:
+                label = outputs[0].max(0)[1].byte().cpu().data # Mask to be published
+            else:
+                label = outputs[0].max(0)[1].byte().data # Mask to be published
 
             l = time.time()
             logger.debug("labeling time: {:.4f}".format(l - out))
@@ -205,7 +209,7 @@ def run_detection(video_path,
     if write_output:
         record.close()
         trackedVideo.release()
-
+    
 
 
 

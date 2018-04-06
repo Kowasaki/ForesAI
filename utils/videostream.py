@@ -46,6 +46,8 @@ class WebcamVideoStream:
         # indicate that the thread should be stopped
         self.stopped = True
         self.f.stop()
+        # TODO: Weird error "VIDIOC_DQBUF: Invalid argument"
+        self.stream.release()
     
     def get_dimensions(self):
 

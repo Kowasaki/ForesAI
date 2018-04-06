@@ -90,11 +90,15 @@ These are the best benchmarks I got based on averages over a 1-minute stream. It
 |:-----------:|:---------------:|:------------:|:-----:|:--------:|
 |SSD-Mobilenet (TensorFlow)|32.20|7289|43.75|1831|
 |SSD-Mobilenet (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|
-|SSD-Mobilenet (Movidius)|Not tested|Not tested|Not tested|Not tested|
+|SSD-Mobilenet (Movidius)**|8.53|0|3|55.4|
 |Mask-RCNN|14.68|7281|23.53|1949|
-|ERFnet|41.29|591|35.41|2194|
+|ERFnet|44.48|567|35.69|2182|
 |ResNet 18-8|29.08|643|29|2035|
 |ResNet 34-8|16.17|751|22.16|2033|
+
+*For some reason running python in the virtual environment for TensorFlow decreased CPU usage by 20%(!). Need to figure out why...
+
+**Resolution 1280x720 Measurement less accurate due to not using system tools instead of benchmarking module
 
 
 # To-Dos
