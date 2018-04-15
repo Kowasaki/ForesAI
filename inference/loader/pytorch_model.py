@@ -43,13 +43,12 @@ class PyTorchModelLoader(ModelLoader):
 
     
     def inference(self, input):
-
+        
         img_tensor = self.convert(input)
         img_tensor = img_tensor.unsqueeze(0)
         image = img_tensor.cuda()
-        inputs = Variable(image, volatile=True)
-        outputs = self.model(inputs)
-
-        label_mask = outputs[0].max(0)[1].byte().cpu().data # Mask to be published
-
+        input_var = Variable(image, volatile=True)
+        outputs = self.model(input_var)
+        # Mask to be published: GPU: add .data CPU add .cpu().data
+        label_mask = outputs[0].max(0)[1].byte()
         return label_mask

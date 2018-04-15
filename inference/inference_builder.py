@@ -23,11 +23,13 @@ class InferenceBuilder:
         self.feed = self._set_video_feed(config["ros_enabled"])
         self.output = self._set_inferece_publisher(config["ros_enabled"])
         self.height, self.width = self.feed.get_dimensions()
-        self.model = self._load_model(config["model"], self.height, self.width)
+        self.library = config["library"]
+        self.model = self._load_model(self.library, config["model"], 
+            self.height, self.width)
         self.graph_trace = False
 
-        if config["model"]["graph_trace"] is not None:
-            self. graph_trace = True
+        if "graph_trace" in config["model"]:
+            self. graph_trace = config["model"]["graph_trace"]
 
     def _set_video_feed(self, ros_enabled):
         if ros_enabled:
@@ -48,10 +50,10 @@ class InferenceBuilder:
         return None
 
 
-    def _load_model(self, model_config, height, width):
+    def _load_model(self, library, model_config, height, width):
 
         # Load the corresponding Loader for library
-        if model_config["library"] == "tensorflow":
+        if library == "tensorflow":
             from inference.loader.tf_model import TFModelLoader
             #TODO: Integrate the visualization tools
             from PIL import Image
@@ -59,10 +61,10 @@ class InferenceBuilder:
             from tf_object_detection.utils import visualization_utils as vis_util
 
             return TFModelLoader(model_config, height, width)
-        elif model_config["library"] == "movidius":
+        elif library == "movidius":
             from inference.loader.mvnc_model import MovidiusModelLoader
             return MovidiusModelLoader(model_config, height, width)
-        elif model_config["library"] == "pytorch":
+        elif library == "pytorch":
             from inference.loader.pytorch_model import PyTorchModelLoader
             return PyTorchModelLoader(model_config, height, width)  
         else:
@@ -77,7 +79,7 @@ class InferenceBuilder:
         elif task == "segmentation":
             from pytorch_segmentation.transform import Colorize
             # Visualizes based off of cityscape classes; this step takes a ton of time!
-            label_color = Colorize()(ouput.unsqueeze(0))
+            label_color = Colorize()(output.unsqueeze(0))
             label_color = np.moveaxis(label_color.numpy(), 0, -1)
             label_color = label_color[...,::-1]
 
@@ -104,7 +106,8 @@ class InferenceBuilder:
         self.logger.debug("Frame width: {} height: {}".format(self.width, self.height))
 
         if self.write_output:
-            self.trackedVideo = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20.0, (c,r))
+            self.trackedVideo = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 
+                20.0, (self.width, self.height))
             self.record = open("record.txt", "w")
 
         count = 0
@@ -127,20 +130,21 @@ class InferenceBuilder:
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
 
-                # # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-                curr_frame_expanded = np.expand_dims(curr_frame, axis=0)
 
                 # Actual detection.
                 start = time.time()
-                output = self.model.inference(curr_frame_expanded)            
+                output = self.model.inference(curr_frame)            
                 end = time.time()
+
+                if self.task == "segmentation" and self.library == "pytorch":
+                    mask = output.data
 
                 if self.benchmark:
                     fps.update()
                     self.logger.info("Session run time: {:.4f}".format(end - start))
                     self.logger.info("Frame {}".format(count))
                     usage.get_usage()
-                
+
                 # TODO: Publish Output
                 if self.ros_enabled:
                     self.logger.info("Publishing via ROS")
@@ -149,13 +153,40 @@ class InferenceBuilder:
                 
                 if self.show_stream:
                     #TODO: set which type of visualization to use based on task 
-                    self._visualize(self.task, output)
+                    if self.task == "segmentation" and self.library == "pytorch":
+                        vis_output = output.cpu().data
+                    self._visualize(self.task, vis_output)
                 
                 count += 1
+
+                # # Quick benchmarking
+                # if timer.get_elapsed_time() >= 60:
+                #     break
 
             except KeyboardInterrupt:
                 self.logger.info("Ctrl + C Pressed. Attempting graceful exit")
                 break
+
+        if self.benchmark:
+            fps.stop()
+            self.logger.info("[USAGE] elasped time: {:.2f}".format(fps.elapsed()))
+            self.logger.info("[USAGE] approx. FPS: {:.2f}".format(fps.fps()))
+            self.logger.info("[USAGE] inferenced frames: {}".format(fps.get_frames()))
+            self.logger.info("[USAGE] raw frames: {}".format(self.feed.get_raw_frames()))
+            self.logger.info("[USAGE] Total Time elapsed: {:.2f} seconds".format(timer.get_elapsed_time()))
+            usage.dump_usage()
+
+
+        self.feed.stop()
+
+        self.logger.debug("Result: {} frames".format(count))
+        
+        if self.show_stream:
+            cv2.destroyAllWindows()
+
+        if self.write_output:
+            self.record.close()
+            self.trackedVideo.release()
     
                         
 

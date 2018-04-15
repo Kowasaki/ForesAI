@@ -76,7 +76,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 |SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|19.43|50.00|1960|21|
 |SSD-Mobilenet v1 (Movidius)*|10.11|20.90|61|Not Reported|
 |SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|22|
-|Mask-RCNN Inception V2|Not tested|Not tested|Not tested|25|
+|Mask-RCNN Inception v2|Not tested|Not tested|Not tested|25|
 
 |Segmentation Models|Frames per Second| CPU % | Combined RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:-----:|:-----------------:|:--------:|
@@ -94,15 +94,19 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 |:---------------------:|:---------------:|:-----:|:-----------------:|:--------:|
 |SSD-Mobilenet v1 (TensorFlow)|32.20|7289|43.75|1831|21|
 |SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|21|
-|SSD-Mobilenet v1 (Movidius)|Not tested|Not tested|Not tested|Not tested|Not Reported|
+|SSD-Mobilenet v1 (Movidius)|8.53|0|3|55.4|Not Reported|
 |SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|22|
-|Mask-RCNN|14.68|7281|23.53|1949|25|
+|Mask-RCNN Inception v2|14.68|7281|23.53|1949|25|
 
 |Segmentation Models|Frames per Second| CPU % | Combined RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:-----:|:-----------------:|:--------:|
-|ERFnet|41.29|591|35.41|2194|69.8|
+|ERFnet|44.48|567|35.69|2182|69.8|
 |ResNet 18-8|29.08|643|29|2035|60.0|
 |ResNet 34-8|16.17|751|22.16|2033|69.1|
+
+*For some reason running python in the virtual environment for TensorFlow decreased CPU usage by 20%(!). Need to figure out why...
+
+**Resolution 1280x720 Measurement less accurate due to not using system tools instead of benchmarking module
 
 
 # To-Dos

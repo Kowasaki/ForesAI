@@ -2,7 +2,7 @@ import json
 
 from argparse import ArgumentParser
 from benchmark import visualize_benchmark
-from inference.detect import detect
+from inference.detect import detect, old_detect
 
 def main(args):
     with open(args.config_path, 'r') as j:
