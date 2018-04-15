@@ -66,19 +66,23 @@ Where CONFIG_PATH is a json file with the configurations shown in demo_configs f
 If you wish to use ForesAI as a package, you can start by running the webcam_benchmark_demo.py from your webcam to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing. For other configurations, please take a look at the *_demo.py scripts along with the respective JSON config files for how to use your own camera hardware. If using your own model, you will need to tweak the config json within the "demo_configs" folder.
 
 # Benchmarks
-These are the best benchmarks I got based on averages over a 1-minute stream. It is **very** likely that all of these can be improved with specific model-based hacks. There's a lot of good work done with the SSD-Mobilenet [here](https://github.com/GustavZ/realtime_object_detection).
+These are the best benchmarks I got based on averages over a 1-minute stream. The precision benchmarks come from reports by their specific authors. It is **very** likely that all of these can be improved with specific model-based hacks. There's a lot of good work done with the SSD-Mobilenet [here](https://github.com/GustavZ/realtime_object_detection).
 
 **Jetson TX2; jetson_clocks enabled; Resolution 640x360**
 
-|             |Frames per Second| CPU % | Combined RAM (MB) |
-|:-----------:|:---------------:|:-----:|:-----------------:|
-|SSD-Mobilenet (TensorFlow)|10.87|62.07|1923|
-|SSD-Mobilenet (TensorFlow, GPU/CPU Split)|19.43|50.00|1960|
-|SSD-Mobilenet (Movidius)*|10.11|20.90|61|
-|Mask-RCNN|Not tested|Not tested|Not tested|
-|ERFnet|7.28|19.07|2452|
-|ResNet 18-8**|todo|todo|todo|
-|ResNet 34-8**|todo|todo|todo|
+|Object Detection Models|Frames per Second| CPU % | Combined RAM (MB) | COCO mAP |
+|:---------------------:|:---------------:|:-----:|:-----------------:|:--------:|
+|SSD-Mobilenet v1 (TensorFlow)|10.87|62.07|1923|21|
+|SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|19.43|50.00|1960|21|
+|SSD-Mobilenet v1 (Movidius)*|10.11|20.90|61|Not Reported|
+|SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|22|
+|Mask-RCNN Inception V2|Not tested|Not tested|Not tested|25|
+
+|Segmentation Models|Frames per Second| CPU % | Combined RAM (MB) | Mean IoU |
+|:-----------------:|:---------------:|:-----:|:-----------------:|:--------:|
+|ERFnet|7.28|19.07|2452|69.8|
+|ResNet 18-8**|TODO|TODO|TODO|60.0|
+|ResNet 34-8**|TODO|TODO|TODO|69.1|
 
 *Resolution 1280x720 Measurement less accurate due to not using system tools instead of benchmarking module
 
@@ -86,15 +90,19 @@ These are the best benchmarks I got based on averages over a 1-minute stream. It
 
 **Nvidia GeForce GTX 1070; i7; 16 GB RAM; Resolution 640x480**
 
-|             |Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) |
-|:-----------:|:---------------:|:------------:|:-----:|:--------:|
-|SSD-Mobilenet (TensorFlow)|32.20|7289|43.75|1831|
-|SSD-Mobilenet (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|
-|SSD-Mobilenet (Movidius)|Not tested|Not tested|Not tested|Not tested|
-|Mask-RCNN|14.68|7281|23.53|1949|
-|ERFnet|41.29|591|35.41|2194|
-|ResNet 18-8|29.08|643|29|2035|
-|ResNet 34-8|16.17|751|22.16|2033|
+|Object Detection Models|Frames per Second| CPU % | Combined RAM (MB) | COCO mAP |
+|:---------------------:|:---------------:|:-----:|:-----------------:|:--------:|
+|SSD-Mobilenet v1 (TensorFlow)|32.20|7289|43.75|1831|21|
+|SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|21|
+|SSD-Mobilenet v1 (Movidius)|Not tested|Not tested|Not tested|Not tested|Not Reported|
+|SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|22|
+|Mask-RCNN|14.68|7281|23.53|1949|25|
+
+|Segmentation Models|Frames per Second| CPU % | Combined RAM (MB) | Mean IoU |
+|:-----------------:|:---------------:|:-----:|:-----------------:|:--------:|
+|ERFnet|41.29|591|35.41|2194|69.8|
+|ResNet 18-8|29.08|643|29|2035|60.0|
+|ResNet 34-8|16.17|751|22.16|2033|69.1|
 
 
 # To-Dos
