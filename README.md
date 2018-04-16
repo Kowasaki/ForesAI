@@ -91,7 +91,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 **Nvidia GeForce GTX 1070; i7; 16 GB RAM; Resolution 640x480**
 
 |Object Detection Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | COCO mAP |
-|:---------------------:|:---------------:|:------------:|:-----:|: -------:|:--------:|
+|:---------------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
 |SSD-Mobilenet v1 (TensorFlow)|32.20|7289|43.75|1831|21|
 |SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|21|
 |SSD-Mobilenet v1 (Movidius)|8.53|0|3|55.4|Not Reported|
@@ -99,7 +99,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 |Mask-RCNN Inception v2|14.68|7281|23.53|1949|25|
 
 |Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | COCO mAP |
-|:-----------------:|:---------------:|:------------:|:-----:|: -------:|:--------:|
+|:-----------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
 |ERFnet|44.48|567|35.69|2182|69.8|
 |ResNet 18-8|29.08|643|29|2035|60.0|
 |ResNet 34-8|16.17|751|22.16|2033|69.1|
