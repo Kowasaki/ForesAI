@@ -95,7 +95,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 |SSD-Mobilenet v1 (TensorFlow)|32.20|7289|43.75|1831|21|
 |SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|21|
 |SSD-Mobilenet v1 (Movidius)|8.53|0|3|55.4|Not Reported|
-|SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|22|
+|SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|TODO|22|
 |Mask-RCNN Inception v2|14.68|7281|23.53|1949|25|
 
 |Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | COCO mAP |
