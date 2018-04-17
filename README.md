@@ -98,11 +98,11 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 |SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|TODO|22|
 |Mask-RCNN Inception v2|14.68|7281|23.53|1949|25|
 
-|Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | COCO mAP |
+|Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
-|ERFnet|44.48|567|35.69|2182|69.8|
-|ResNet 18-8|29.08|643|29|2035|60.0|
-|ResNet 34-8|16.17|751|22.16|2033|69.1|
+|ERFnet*|44.48|567|35.69|2182|69.8|
+|ResNet 18-8*|29.08|643|29|2035|60.0|
+|ResNet 34-8*|16.17|751|22.16|2033|69.1|
 
 *For some reason running python in the virtual environment for TensorFlow decreased CPU usage by 20%(!). Need to figure out why...
 
