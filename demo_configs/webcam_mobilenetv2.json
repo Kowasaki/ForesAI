@@ -1,0 +1,18 @@
+{
+    "is_camera":true,
+    "device_path":0,
+    "task": "detection",
+    "show_stream":false,
+    "write_output":false,
+    "benchmark":true,
+    "ros_enabled":false,
+    "library":"tensorflow",
+    "model":{
+        "split_hack":false,
+        "mask_enabled": false,
+        "graph_trace": false,
+        "classes": 90,
+        "model_path":"./inference_graphs/ssd_mobilenet_v2_coco_2018_03_29/frozen_inference_graph.pb",
+        "pbtxt": "./data/mscoco_label_map.pbtxt"
+        }
+}

@@ -159,9 +159,9 @@ class InferenceBuilder:
                 
                 count += 1
 
-                # # Quick benchmarking
-                # if timer.get_elapsed_time() >= 60:
-                #     break
+                # Quick benchmarking
+                if timer.get_elapsed_time() >= 60:
+                    break
 
             except KeyboardInterrupt:
                 self.logger.info("Ctrl + C Pressed. Attempting graceful exit")

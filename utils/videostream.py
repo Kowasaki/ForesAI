@@ -13,10 +13,11 @@ class WebcamVideoStream:
 
         (self.grabbed, self.frame) = self.stream.read()
 
-        # res = (500, 500) 
+        self.resize = None
+        res = (480, 480)
         # res is a tuple of (width, height)
         if res is not None:
-            self.frame = cv2.resize(self.frame, res)
+            self.resize = res
 
         # initialize the variable used to indicate if the thread should
         # be stopped
@@ -45,6 +46,8 @@ class WebcamVideoStream:
 
     def read(self):
         # return the frame most recently read
+        if self.resize is not None:
+            self.frame = cv2.resize(self.frame, self.resize)
         return self.grabbed, self.frame
 
     def stop(self):
@@ -55,7 +58,9 @@ class WebcamVideoStream:
         self.stream.release()
     
     def get_dimensions(self):
-
+        if self.resize is not None:
+            return self.resize[0], self.resize[1]
+            
         c = int(self.stream.get(3))  
         r = int(self.stream.get(4)) 
         return r, c
