@@ -4,7 +4,7 @@ import cv2
 from utils.fps import FPS
 
 class WebcamVideoStream:
-    def __init__(self, src=0):
+    def __init__(self, src=0, res=None):
         # initialize the video camera stream and read the first frame
         # from the stream
         self.stream = cv2.VideoCapture(src)
@@ -12,6 +12,11 @@ class WebcamVideoStream:
             raise Exception("Video/Camera device not found at: {}".format(src))
 
         (self.grabbed, self.frame) = self.stream.read()
+
+        # res = (500, 500) 
+        # res is a tuple of (width, height)
+        if res is not None:
+            self.frame = cv2.resize(self.frame, res)
 
         # initialize the variable used to indicate if the thread should
         # be stopped
