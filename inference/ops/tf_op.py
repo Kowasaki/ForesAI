@@ -41,7 +41,9 @@ def load_model(PATH_TO_CKPT):
 def load_split_model(PATH_TO_CKPT):
     # load a frozen Model and split it into GPU and CPU graphs
     input_graph = tf.Graph()
-    with tf.Session(graph=input_graph):
+    config = tf.ConfigProto(allow_soft_placement=True, 
+        gpu_options = tf.GPUOptions(allow_growth = True))
+    with tf.Session(graph=input_graph, config = config):
         score = tf.placeholder(tf.float32, shape=(None, 1917, 90), name="Postprocessor/convert_scores")
         expand = tf.placeholder(tf.float32, shape=(None, 1917, 1, 4), name="Postprocessor/ExpandDims_1")
         for node in input_graph.as_graph_def().node:
@@ -140,9 +142,8 @@ def run_detection(video_path,
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     
-    config = tf.ConfigProto(allow_soft_placement=True)
-    # config = tf.ConfigProto(allow_soft_placement=True, 
-    #     gpu_options = tf.GPUOptions(allow_growth = False, per_process_gpu_memory_fraction=0.5))
+    config = tf.ConfigProto(allow_soft_placement=True, 
+        gpu_options = tf.GPUOptions(allow_growth = True))
 
     labels_per_frame = []
     boxes_per_frame = []
@@ -358,8 +359,9 @@ def run_mask_detection(video_path,
     from PIL import Image
     from tf_object_detection.utils import visualization_utils as vis_util
 
-    config = tf.ConfigProto(allow_soft_placement=True)
-
+    config = tf.ConfigProto(allow_soft_placement=True, 
+        gpu_options = tf.GPUOptions(allow_growth = True))
+        
     labels_per_frame = []
     boxes_per_frame = []
     cpu_usage_dump = ""
