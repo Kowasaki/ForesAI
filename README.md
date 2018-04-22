@@ -68,46 +68,43 @@ If you wish to use ForesAI as a package, you can start by running the webcam_ben
 # Benchmarks
 These are the best benchmarks I got based on averages over a 1-minute stream. The precision benchmarks come from reports by their specific authors. It is **very** likely that all of these can be improved with specific model-based hacks. There's a lot of good work done with the SSD-Mobilenet [here](https://github.com/GustavZ/realtime_object_detection).
 
-**Jetson TX2; jetson_clocks enabled; Resolution 640x360**
+**Jetson TX2; jetson_clocks enabled; Resolution 480x480**
 
 |Object Detection Models|Frames per Second| CPU % | Combined RAM (MB) | COCO mAP |
 |:---------------------:|:---------------:|:-----:|:-----------------:|:--------:|
-|SSD-Mobilenet v1 (TensorFlow)|10.87|62.07|1923|21|
-|SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|19.43|50.00|1960|21|
-|SSD-Mobilenet v1 (Movidius)*|10.11|20.90|61|Not Reported|
-|SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|22|
-|Mask-RCNN Inception v2|Not tested|Not tested|Not tested|25|
+|SSD-Mobilenet v1 (TensorFlow)|10.01|64.38|1838|21|
+|SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|18.02|54.89|1799|21|
+|SSD-Mobilenet v1 (Movidius)*|10.08|10|247|Not Reported|
 
 |Segmentation Models|Frames per Second| CPU % | Combined RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:-----:|:-----------------:|:--------:|
-|ERFnet|7.28|19.07|2452|69.8|
-|ResNet 18-8**|TODO|TODO|TODO|60.0|
-|ResNet 34-8**|TODO|TODO|TODO|69.1|
+|ERFnet|7.54|23.54|2464|69.8|
+|ResNet 18-8**|3.40|13.89|2297|N/A|
+|ResNet 34-8**|1.85|13.26|2296|N/A|
 
-*Resolution 1280x720 Measurement less accurate due to not using system tools instead of benchmarking module
+*Measurement less accurate due to not using system tools instead of benchmarking module
 
-**Both ResNet 18 and Resnet 34 requires further optimization--it seems that too many threads were spawn during upsampling
+**Both ResNet 18 and Resnet 34 requires changing the upsampling algorithm from bilinear interpolation to nearest neighbor for the models to run on the TX2, which will have a negative impact original reported mean IOU 
 
-**Nvidia GeForce GTX 1070; i7; 16 GB RAM; Resolution 640x480**
+**Nvidia GeForce GTX 1070 8GB GDDR5; i7 4-core 4.20 GHz; 16 GB RAM; Resolution 480x480**
 
 |Object Detection Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | COCO mAP |
 |:---------------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
-|SSD-Mobilenet v1 (TensorFlow)|32.20|7289|43.75|1831|21|
-|SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|21|
-|SSD-Mobilenet v1 (Movidius)|8.53|0|3|55.4|Not Reported|
-|SSD-Mobilenet v2 (TensorFlow)|TODO|TODO|TODO|TODO|22|
-|Mask-RCNN Inception v2|14.68|7281|23.53|1949|25|
+|SSD-Mobilenet v1 (TensorFlow)|32.17|363|40.25|1612|21|
+|SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|61.97|363|58.09|1612|21|
+|SSD-Mobilenet v1 (Movidius)|8.51|0|6|57|Not Reported|
+|SSD-Mobilenet v2 (TensorFlow)|53.96|2491|35.94|1838|22|
+|Mask-RCNN Inception v2|15.86|6573|22.54|1950|25|
 
 |Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
-|ERFnet*|44.48|567|35.69|2182|69.8|
-|ResNet 18-8*|29.08|643|29|2035|60.0|
-|ResNet 34-8*|16.17|751|22.16|2033|69.1|
+|ERFnet*|63.38|549|40.01|2181|69.8|
+|ResNet 18-8*|38.85|605|31.07|2023|60.0|
+|ResNet 34-8*|21.12|713|23.29|2020|69.1|
 
 *For some reason running python in the virtual environment for TensorFlow decreased CPU usage by 20%(!). Need to figure out why...
 
-**Resolution 1280x720 Measurement less accurate due to not using system tools instead of benchmarking module
-
+**Measurement less accurate due to not using system tools instead of benchmarking module
 
 # To-Dos
 Right now I will only focus on features I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
