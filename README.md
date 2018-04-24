@@ -98,7 +98,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 
 |Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
-|Enet (PyTorch)***|50.16|1261|34.34|2186|60.4|
+|Enet (PyTorch)***|90.35|873|50.66|2185|60.4|
 |ERFnet*|63.38|549|40.01|2181|69.8|
 |ResNet 18-8*|38.85|605|31.07|2023|60.0|
 |ResNet 34-8*|21.12|713|23.29|2020|69.1|
@@ -138,6 +138,8 @@ Many thanks to all the sources cited below. Please feel free to contact me if yo
 - [ERFNet implementation and helper functions](https://github.com/Eromera/erfnet_pytorch)
 
 - [Image Segmentation and Object Detection in Pytorch](https://github.com/warmspringwinds/pytorch-segmentation-detection)
+
+- [ENet-PyTorch](https://github.com/bermanmaxim/Enet-PyTorch)
 
 ## Models
 "Speed/accuracy trade-offs for modern convolutional object detectors."

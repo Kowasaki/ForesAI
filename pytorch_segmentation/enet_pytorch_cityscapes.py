@@ -680,18 +680,12 @@ class ENet_CS(nn.Module):
     def __init__(self, num_classes, encoder=None):
         super().__init__()
         self.model = cityscapes_enet_pytorch
-        # print(self.model.state_dict())
-    # def state_dict(self):
-    #     print("hi")
-    #     print(self.model.state_dict())
-    #     return self.model.state_dict()
+
     def load(self, weights_path):
         self.model.load_state_dict(torch.load(weights_path))
 
     def forward(self, input):
-        # inp = torch.from_numpy(input.transpose(2, 0, 1)).unsqueeze(0).cuda()
-        inp = F.upsample(input, (512, 1024), mode='bilinear').data
-         
+        inp = F.upsample(input, (input.size()[2], input.size()[3]), mode='bilinear').data
 
         return self.model(Variable(inp))
 
