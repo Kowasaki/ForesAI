@@ -98,6 +98,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 
 |Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
+|Enet (PyTorch)***|50.16|1261|34.34|2186|60.4|
 |ERFnet*|63.38|549|40.01|2181|69.8|
 |ResNet 18-8*|38.85|605|31.07|2023|60.0|
 |ResNet 34-8*|21.12|713|23.29|2020|69.1|
@@ -105,6 +106,8 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 *For some reason running python in the virtual environment for TensorFlow decreased CPU usage by 20%(!). Need to figure out why...
 
 **Measurement less accurate due to not using system tools instead of benchmarking module
+
+***Third party implementation
 
 # To-Dos
 Right now I will only focus on features I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!

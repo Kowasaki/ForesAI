@@ -33,6 +33,11 @@ class PyTorchModelLoader(ModelLoader):
         Net = getattr(mod, model_config["model_name"])
 
         self.model = Net(model_config["classes"])
+        
+        # TODO: Fix the hacky solution
+        if model_config["model_name"] == "ENet_CS":
+            self.model.load(model_config["weights_path"])
+
         self.model = torch.nn.DataParallel(self.model)
         self.model = load_my_state_dict(self.model, torch.load(model_config["weights_path"]))
         self.model.eval()
