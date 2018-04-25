@@ -78,6 +78,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 
 |Segmentation Models|Frames per Second| CPU % | Combined RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:-----:|:-----------------:|:--------:|
+|Enet (PyTorch)***|13.81|39.48|2469|60.4|
 |ERFnet|7.54|23.54|2464|69.8|
 |ResNet 18-8**|3.40|13.89|2297|N/A|
 |ResNet 34-8**|1.85|13.26|2296|N/A|
@@ -85,6 +86,8 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 *Measurement less accurate due to not using system tools instead of benchmarking module
 
 **Both ResNet 18 and Resnet 34 requires changing the upsampling algorithm from bilinear interpolation to nearest neighbor for the models to run on the TX2, which will have a negative impact original reported mean IOU 
+
+***Third party implementation
 
 **Nvidia GeForce GTX 1070 8GB GDDR5; i7 4-core 4.20 GHz; 16 GB RAM; Resolution 480x480**
 
@@ -98,7 +101,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 
 |Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
-|Enet (PyTorch)***|90.35|873|50.66|2185|60.4|
+|Enet (PyTorch)***|96.4|535|51.35|2185|60.4|
 |ERFnet*|63.38|549|40.01|2181|69.8|
 |ResNet 18-8*|38.85|605|31.07|2023|60.0|
 |ResNet 34-8*|21.12|713|23.29|2020|69.1|

@@ -685,7 +685,5 @@ class ENet_CS(nn.Module):
         self.model.load_state_dict(torch.load(weights_path))
 
     def forward(self, input):
-        inp = F.upsample(input, (input.size()[2], input.size()[3]), mode='bilinear').data
-
-        return self.model(Variable(inp))
+        return self.model(input)
 
