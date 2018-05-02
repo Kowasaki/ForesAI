@@ -60,7 +60,7 @@ def detect(config):
     
     Currently, the old detect is called for libraries where the loader class hasn't been completed yet
     """
-    if config["library"] == "pytorch":
+    if config["library"] == "pytorch" or config["library"] == "darknet" :
         inference = InferenceBuilder(config)
         inference.detect()
     else:
