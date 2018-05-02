@@ -53,6 +53,9 @@ For PyTorch (Currently, only GPU mode w/CUDA is supported at this time):
 - Pillow (PIL)
 - [PyTorch](http://pytorch.org/)
 
+For Darknet (YOLO object detectors):
+- Build the library from the author's repo [here](https://github.com/pjreddie/darknet) and put the binary under the "darknet" folder. You'll also want to change the file paths in the cfg folder to match your own
+
 # Instructions
 If you don't have a model in mind, feel free to use this [slightly modified SSD-mobilenetv1 model](https://drive.google.com/drive/folders/1Cwy89QCs3R2dFRxZ85TZJZFBFMtTsl0D?usp=sharing) here to test out the object detection function. You'll need both folders extracted within the "ForesAI" folder.
 
@@ -106,6 +109,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 |ERFnet*|63.38|549|40.01|2181|69.8|
 |ResNet 18-8*|38.85|605|31.07|2023|60.0|
 |ResNet 34-8*|21.12|713|23.29|2020|69.1|
+|MobilenetV2-DeeplabV3|4.14|1387|17.49|1530|70.71|
 
 *For some reason running python in the virtual environment for TensorFlow decreased CPU usage by 20%(!). Need to figure out why...
 
