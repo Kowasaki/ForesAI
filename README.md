@@ -98,6 +98,7 @@ These are the best benchmarks I got based on averages over a 1-minute stream. Th
 |SSD-Mobilenet v1 (Movidius)|8.51|0|6|57|Not Reported|
 |SSD-Mobilenet v2 (TensorFlow)|53.96|2491|35.94|1838|22|
 |Mask-RCNN Inception v2|15.86|6573|22.54|1950|25|
+|YOLOv3-320|18.91|1413|15.2|688|28.2|
 
 |Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | Mean IoU |
 |:-----------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|

@@ -9,9 +9,9 @@
     "library":"darknet",
     "model":{
         "model_name": "yolov3",
-        "model_path": "./darknet/cfg/yolov3.cfg",
-        "weights_path":"./inference_graphs/yolov3_coco/yolov3.weights",
-        "labels_path":"./darknet/cfg/coco.data",
+        "model_path": "darknet/cfg/yolov3.cfg",
+        "weights_path":"inference_graphs/yolov3_coco/yolov3.weights",
+        "labels_path":"darknet/cfg/coco.data",
         "classes":90
         }
 }

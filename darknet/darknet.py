@@ -1,5 +1,6 @@
 from ctypes import *
 import math
+import os
 import random
 
 def sample(probs):
@@ -45,7 +46,7 @@ class METADATA(Structure):
     
 
 #lib = CDLL("/home/pjreddie/documents/darknet/libdarknet.so", RTLD_GLOBAL)
-lib = CDLL("libdarknet.so", RTLD_GLOBAL)
+lib = CDLL("./darknet/libdarknet.so", RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
 lib.network_height.argtypes = [c_void_p]
@@ -123,7 +124,7 @@ def classify(net, meta, im):
     return res
 
 def detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45):
-    im = load_image(image, 0, 0)
+    im = load_image(image.encode(), 0, 0)
     num = c_int(0)
     pnum = pointer(num)
     predict_image(net, im)
@@ -143,10 +144,14 @@ def detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45):
     return res
 
 def call_load_net(net_path, weight_path):
-    return load_net(net_path, weight_path)
+    net_path = os.path.join(os.getcwd(), net_path) 
+    weight_path = os.path.join(os.getcwd(), weight_path) 
+    return load_net(net_path.encode(), weight_path.encode(), 0)
 
-def call_load_meta(label_path):
-    return load_meta(label_path)
+def call_load_meta(labels_path):
+    labels_path = os.path.join(os.getcwd(), labels_path) 
+    return load_meta(labels_path.encode())
+
 
 if __name__ == "__main__":
     #net = load_net("cfg/densenet201.cfg", "/home/pjreddie/trained/densenet201.weights", 0)

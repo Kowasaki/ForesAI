@@ -67,6 +67,9 @@ class InferenceBuilder:
         elif library == "pytorch":
             from inference.loader.pytorch_model import PyTorchModelLoader
             return PyTorchModelLoader(model_config, height, width)  
+        elif library == "darknet":
+            from inference.loader.YOLO_model import YOLOModelLoader
+            return YOLOModelLoader(model_config, height, width)
         else:
             raise Exception("[ERROR: Unsupported Library!]")
 

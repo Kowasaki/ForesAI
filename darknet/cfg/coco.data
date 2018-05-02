@@ -2,7 +2,8 @@ classes= 80
 train  = /home/pjreddie/data/coco/trainvalno5k.txt
 #valid  = coco_testdev
 valid = data/coco_val_5k.list
-names = data/coco.names
+#update path to your coco.names file here
+names = /home/weiyinko/Documents/Github/darknet/data/coco.names
 backup = /home/pjreddie/backup/
 eval=coco
 
