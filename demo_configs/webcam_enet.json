@@ -2,15 +2,15 @@
     "is_camera":true,
     "device_path":0,
     "task": "segmentation",
-    "show_stream":true,
+    "show_stream":false,
     "write_output":false,
     "benchmark":true,
     "ros_enabled":false,
     "library":"pytorch",
     "model":{
-        "model_path": "./pytorch_segmentation/erfnet.py",
-        "model_name": "ERFNet",
-        "weights_path":"./inference_graphs/ERFnet_city/erfnet_pretrained.pth",
+        "model_path": "./pytorch_segmentation/enet_pytorch_cityscapes.py",
+        "model_name": "ENet_CS",
+        "weights_path":"./inference_graphs/Enet_city/enet_pytorch_cityscapes.pth",
         "classes":20
         }
 }

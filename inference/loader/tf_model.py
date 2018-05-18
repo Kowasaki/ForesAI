@@ -81,6 +81,7 @@ class TFModelLoader(ModelLoader):
             
     def inference(self, input):
         
+        # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
         curr_frame_expanded = np.expand_dims(input, axis=0)
 
         if self.score is None and self.expand is None:

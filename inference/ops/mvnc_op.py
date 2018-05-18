@@ -14,6 +14,7 @@ import sys
 from mvnc import mvncapi as mvnc
 from sys import argv
 from utils.box_op import Box, parse_mov_output
+from utils.videostream import WebcamVideoStream
 
 # name of the opencv window
 cv_window_name = "Stream"
@@ -267,6 +268,9 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
     # allocate the Graph instance from NCAPI by passing the memory buffer
     ssd_mobilenet_graph = device.AllocateGraph(graph_data)
 
+    pub = None
+    sub = None
+    
     if ros_enabled:
         from utils.ros_op import CameraSubscriber, DetectionPublisher
         pub = DetectionPublisher()
@@ -281,13 +285,14 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
         if ros_enabled:
             cap = sub.get_frame()
         else:
-            cap = cv2.VideoCapture(camera_path)
+            cap = WebcamVideoStream(src = camera_path).start()
+        
+        actual_frame_width = cap.stream.get(3)
+        actual_frame_height = cap.stream.get(4)
 
-        actual_frame_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        actual_frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         print ('actual video resolution: ' + str(actual_frame_width) + ' x ' + str(actual_frame_height))
 
-        if ((cap == None) or (not cap.isOpened())):
+        if ((cap == None) or (not cap.is_running())):
             print ('Could not open camera device')
             print ('device path:' + camera_path)
             exit_app = True
@@ -297,7 +302,7 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
         start_time = time.time()
         end_time = start_time
 
-        while(cap.isOpened()):
+        while(cap.is_running()):
             ret, display_image = cap.read()
 
             if (not ret):
@@ -313,7 +318,7 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
                 exit_app = True
                 break
 
-            run_inference(display_image, ssd_mobilenet_graph, visualize, ros_enabled)
+            run_inference(display_image, ssd_mobilenet_graph, visualize, pub)
 
             if (resize_output):
                 display_image = cv2.resize(display_image,
@@ -332,7 +337,7 @@ def run_detection(camera_path, graph_filename, visualize, ros_enabled):
         frames_per_second = frame_count / (end_time - start_time)
         print('Frames per Second: ' + str(frames_per_second))
 
-        cap.release()
+        cap.stop()
 
         if (exit_app):
             break

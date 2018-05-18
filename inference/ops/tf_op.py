@@ -41,7 +41,9 @@ def load_model(PATH_TO_CKPT):
 def load_split_model(PATH_TO_CKPT):
     # load a frozen Model and split it into GPU and CPU graphs
     input_graph = tf.Graph()
-    with tf.Session(graph=input_graph):
+    config = tf.ConfigProto(allow_soft_placement=True, 
+        gpu_options = tf.GPUOptions(allow_growth = True))
+    with tf.Session(graph=input_graph, config = config):
         score = tf.placeholder(tf.float32, shape=(None, 1917, 90), name="Postprocessor/convert_scores")
         expand = tf.placeholder(tf.float32, shape=(None, 1917, 1, 4), name="Postprocessor/ExpandDims_1")
         for node in input_graph.as_graph_def().node:
@@ -117,6 +119,12 @@ def load_label_map(NUM_CLASSES, pbtxt):
 
     return label_map, categories, category_index
 
+def write_trace(run_metadata, timeline, graph_name):
+    fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+    chrome_trace = fetched_timeline.generate_chrome_trace_format()
+    with open(graph_name , 'w') as f:
+        f.write(chrome_trace)
+
 def run_detection(video_path,
                   detection_graph, 
                   label_map, 
@@ -134,7 +142,8 @@ def run_detection(video_path,
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     
-    config = tf.ConfigProto(allow_soft_placement=True)
+    config = tf.ConfigProto(allow_soft_placement=True, 
+        gpu_options = tf.GPUOptions(allow_growth = True))
 
     labels_per_frame = []
     boxes_per_frame = []
@@ -228,14 +237,27 @@ def run_detection(video_path,
                             feed_dict={image_tensor: curr_frame_expanded}, 
                             options=options,
                             run_metadata=run_metadata)
+                        if graph_trace_enabled:
+                            write_trace(run_metadata, timeline, "graph_timeline_nosplit.json")
+
                     else:
                         # Split Detection in two sessions.
                         (score, expand) = sess.run(
                             [score_out, expand_out], 
-                            feed_dict={image_tensor: curr_frame_expanded})
+                            feed_dict={image_tensor: curr_frame_expanded},
+                            options=options,
+                            run_metadata=run_metadata)
+                        if graph_trace_enabled:
+                            write_trace(run_metadata,timeline, "graph_timeline_conv.json")
+
                         (boxes, scores, classes) = sess.run(
                             [detection_boxes, detection_scores, detection_classes],
-                            feed_dict={score_in:score, expand_in: expand}) 
+                            feed_dict={score_in:score, expand_in: expand},
+                            options=options,
+                            run_metadata=run_metadata) 
+                        if graph_trace_enabled:
+                            write_trace(run_metadata, timeline, "graph_timeline_nms.json")
+
                     end = time.time()
 
                     if usage_check:
@@ -245,11 +267,6 @@ def run_detection(video_path,
                         cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
                             mem_usage_dump, time_usage_dump, timer)
                     
-                    if graph_trace_enabled:
-                        fetched_timeline = timeline.Timeline(run_metadata.step_stats)
-                        chrome_trace = fetched_timeline.generate_chrome_trace_format()
-                        with open('graph_timeline.json' , 'w') as f:
-                            f.write(chrome_trace)
                     
                     (r,c,_) = curr_frame.shape
                     logger.debug("image height:{}, width:{}".format(r,c))
@@ -286,9 +303,191 @@ def run_detection(video_path,
                     
                     count += 1
 
-                    # # Quick benchmarking
-                    # if timer.get_elapsed_time() >= 60:
-                    #     break
+                    # Quick benchmarking
+                    if timer.get_elapsed_time() >= 60:
+                        break
+
+                except KeyboardInterrupt:
+                    logger.info("Ctrl + C Pressed. Attempting graceful exit")
+                    break
+
+    if usage_check:
+        fps.stop()
+        logger.info("[USAGE] elasped time: {:.2f}".format(fps.elapsed()))
+        logger.info("[USAGE] approx. FPS: {:.2f}".format(fps.fps()))
+        logger.info("[USAGE] inferenced frames: {}".format(fps.get_frames()))
+        logger.info("[USAGE] raw frames: {}".format(vid.get_raw_frames()))
+        logger.info("[USAGE] Total Time elapsed: {:.2f} seconds".format(timer.get_elapsed_time()))
+        with open("cpu_usage.txt", "w") as c:
+            c.write(cpu_usage_dump)
+        with open("mem_usage.txt", "w") as m:
+            m.write(mem_usage_dump)
+        with open("time_usage.txt", "w") as t:
+            t.write(time_usage_dump) 
+
+    vid.stop()
+
+    logger.debug("Result: {} frames".format(count))
+    
+    if visualize:
+        cv2.destroyAllWindows()
+
+    if write_output:
+        record.close()
+        trackedVideo.release()
+
+    return labels_per_frame, boxes_per_frame
+
+def run_segmentation(video_path,
+                     detection_graph, 
+                     label_map, 
+                     categories, 
+                     category_index, 
+                     show_window,
+                     visualize, 
+                     write_output,
+                     ros_enabled, 
+                     usage_check,
+                     graph_trace_enabled = False,
+                     score_node = None,
+                     expand_node = None):
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    from tf_object_detection.utils import ops as utils_ops 
+    from PIL import Image
+    from tf_object_detection.utils import visualization_utils as vis_util
+
+    config = tf.ConfigProto(allow_soft_placement=True, 
+        gpu_options = tf.GPUOptions(allow_growth = True))
+        
+    labels_per_frame = []
+    boxes_per_frame = []
+    cpu_usage_dump = ""
+    mem_usage_dump = ""
+    time_usage_dump = ""
+
+    if ros_enabled:
+        from utils.ros_op import DetectionPublisher, CameraSubscriber
+        pub = DetectionPublisher()
+        sub = CameraSubscriber()
+    
+    if graph_trace_enabled:
+        from tensorflow.python.client import timeline
+
+    if usage_check:
+        timer = Timer()
+        logger.info("Initial startup")
+        cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
+            mem_usage_dump, time_usage_dump, timer)
+    
+    if ros_enabled:
+        if not sub.is_running():
+            return Exception("[ERROR: Camera Node not running]")
+    else:
+        vid = WebcamVideoStream(src = video_path).start()
+
+    r, c = vid.get_dimensions()
+
+    logger.debug("Frame width: {} height: {}".format(r,c))
+    
+    if write_output:
+        trackedVideo = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20.0, (c,r))
+        record = open("record.txt", "w")
+
+    count = 0
+
+    # Detection
+    with detection_graph.as_default():
+        with tf.Session(graph=detection_graph, config = config) as sess:
+            options = None
+            run_metadata = None
+            # Get handles to input and output tensors
+            ops = tf.get_default_graph().get_operations()
+            all_tensor_names = {output.name for op in ops for output in op.outputs}
+
+            seg_tensor = "SemanticPredictions:0"
+            image_tensor = tf.get_default_graph().get_tensor_by_name('ImageTensor:0')
+            
+            if usage_check:
+                fps = FPS().start()
+
+            if graph_trace_enabled:
+                options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+                run_metadata = tf.RunMetadata()
+
+            # Read video frame by frame and perform inference
+            while(vid.is_running()):
+                try:
+                    # the array based representation of the image will be used later in order to prepare the
+                    # result image with boxes and labels on it.
+                    logger.debug("Frame {}".format(count))
+                    retval, curr_frame = vid.read()
+
+                    if not retval:
+                        logger.info("Video ending at frame {}".format(count))
+                        break
+
+                    if show_window:
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                            break
+
+                    # curr_frame = cv2.cvtColor(curr_frame, cv2.COLOR_BGR2RGB)
+                    # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+                    curr_frame_expanded = np.expand_dims(curr_frame, axis=0)
+
+                    # Actual detection.
+                    start = time.time()
+                    if score_node is None and expand_node is None:
+                        output_dict = sess.run(seg_tensor,
+                            feed_dict={image_tensor: curr_frame_expanded},
+                            options=options,
+                            run_metadata=run_metadata)
+                    else:
+                        raise Exception("Split model not supported for segmentation")
+
+                    end = time.time()
+   
+                    if usage_check:
+                        fps.update()
+                        logger.info("Session run time: {:.4f}".format(end - start))
+                        logger.info("Frame {}".format(count))
+                        cpu_usage_dump, mem_usage_dump, time_usage_dump  = show_usage(cpu_usage_dump, 
+                            mem_usage_dump, time_usage_dump, timer)
+                    
+                    if graph_trace_enabled:
+                        fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+                        chrome_trace = fetched_timeline.generate_chrome_trace_format()
+                        with open('graph_timeline.json' , 'w') as f:
+                            f.write(chrome_trace)
+
+                    (r,c,_) = curr_frame.shape
+                    logger.debug("image height:{}, width:{}".format(r,c))
+
+                    if ros_enabled:
+                    # TODO: Send the detected info to other systems every frame
+                        logger.info("Publishing bboxes")
+                        logger.info("".join([str(i) for i in filtered_boxes]))
+                        pub.send_boxes(filtered_boxes)
+                        
+                    if write_output:
+                        record.write(str(count)+"\n")            
+                        for i in range(len(filtered_boxes)):
+                            record.write("{}\n".format(str(filtered_boxes[i])))
+
+                    # Visualization of the results of a detection.
+                    if visualize:
+                        logger.warning("visualize not implmented!")
+
+                    else:
+                        logger.info(output_dict.shape)                
+                    
+                    count += 1
+
+                    # Quick benchmarking
+                    if timer.get_elapsed_time() >= 60:
+                        break
 
                 except KeyboardInterrupt:
                     logger.info("Ctrl + C Pressed. Attempting graceful exit")
@@ -342,8 +541,9 @@ def run_mask_detection(video_path,
     from PIL import Image
     from tf_object_detection.utils import visualization_utils as vis_util
 
-    config = tf.ConfigProto(allow_soft_placement=True)
-
+    config = tf.ConfigProto(allow_soft_placement=True, 
+        gpu_options = tf.GPUOptions(allow_growth = True))
+        
     labels_per_frame = []
     boxes_per_frame = []
     cpu_usage_dump = ""
@@ -443,7 +643,7 @@ def run_mask_detection(video_path,
                         if cv2.waitKey(1) & 0xFF == ord('q'):
                             break
 
-                    # # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+                    # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
                     curr_frame_expanded = np.expand_dims(curr_frame, axis=0)
 
                     # Actual detection.
@@ -455,13 +655,7 @@ def run_mask_detection(video_path,
                             run_metadata=run_metadata)
                     else:
                         raise Exception("Split model not supported for mask")
-                        # Split Detection in two sessions.
-                        # (score, expand) = sess.run(
-                        #     [score_out, expand_out], 
-                        #     feed_dict={image_tensor: curr_frame_expanded})
-                        # (boxes, scores, classes) = sess.run(
-                        #     [detection_boxes, detection_scores, detection_classes],
-                        #     feed_dict={score_in:score, expand_in: expand}) 
+
                     end = time.time()
 
                     boxes = output_dict['detection_boxes']
@@ -525,11 +719,9 @@ def run_mask_detection(video_path,
                         if show_window:
                             window_name = "stream"
                             cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-                            # cv2.imshow(window_name,drawn_img)
                             cv2.imshow(window_name,curr_frame)
 
                         if write_output:
-                            # trackedVideo.write(drawn_img)
                             trackedVideo.write(curr_frame)
                     else:
                         logger.info("".join([str(i) for i in filtered_boxes]))
@@ -537,9 +729,9 @@ def run_mask_detection(video_path,
                     
                     count += 1
 
-                    # # Quick benchmarking
-                    # if timer.get_elapsed_time() >= 60:
-                    #     break
+                    # Quick benchmarking
+                    if timer.get_elapsed_time() >= 60:
+                        break
 
                 except KeyboardInterrupt:
                     logger.info("Ctrl + C Pressed. Attempting graceful exit")
@@ -571,7 +763,6 @@ def run_mask_detection(video_path,
         trackedVideo.release()
 
     return labels_per_frame, boxes_per_frame
-
 
 def detect_video(video_path,
                  NUM_CLASSES,

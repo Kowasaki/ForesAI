@@ -43,16 +43,18 @@ Must haves:
 - OpenCV3 (your own build or pip)
 
 For TensorFlow:
-- Pillow (PIL)
-- [protobuf](https://github.com/google/protobuf)
+- Pillow (PIL) (For instance segmentation)
 - [TensorFlow](https://www.tensorflow.org/)
 
 For Movidius:
 - [Movidius SDK](https://movidius.github.io/ncsdk/)
 
-For PyTorch:
+For PyTorch (Currently, only GPU mode w/CUDA is supported at this time):
 - Pillow (PIL)
 - [PyTorch](http://pytorch.org/)
+
+For Darknet (YOLO object detectors):
+- Build the library from the author's repo [here](https://github.com/pjreddie/darknet) and put the binary under the "darknet" folder. You'll also want to change the file paths in the cfg folder to match your own
 
 # Instructions
 If you don't have a model in mind, feel free to use this [slightly modified SSD-mobilenetv1 model](https://drive.google.com/drive/folders/1Cwy89QCs3R2dFRxZ85TZJZFBFMtTsl0D?usp=sharing) here to test out the object detection function. You'll need both folders extracted within the "ForesAI" folder.
@@ -67,36 +69,53 @@ Where CONFIG_PATH is a json file with the configurations shown in demo_configs f
 If you wish to use ForesAI as a package, you can start by running the webcam_benchmark_demo.py from your webcam to see how to use the camera detection API. You can also try the video_demo to have the object inference run on a video file of your choosing. For other configurations, please take a look at the *_demo.py scripts along with the respective JSON config files for how to use your own camera hardware. If using your own model, you will need to tweak the config json within the "demo_configs" folder.
 
 # Benchmarks
-These are the best benchmarks I got based on averages over a 1-minute stream. It is **very** likely that all of these can be improved with specific model-based hacks. There's a lot of good work done with the SSD-Mobilenet [here](https://github.com/GustavZ/realtime_object_detection).
+These are the best benchmarks I got based on averages over a 1-minute stream. The precision benchmarks come from reports by their specific authors. It is **very** likely that all of these can be improved with specific model-based hacks. There's a lot of good work done with the SSD-Mobilenet [here](https://github.com/GustavZ/realtime_object_detection).
 
-**Jetson TX2; jetson_clocks enabled; Resolution 640x360**
+**Jetson TX2; jetson_clocks enabled; Resolution 480x480**
 
-|             |Frames per Second| CPU % | Combined RAM (MB) |
-|:-----------:|:---------------:|:-----:|:-----------------:|
-|SSD-Mobilenet (TensorFlow)|10.87|62.07|1923|
-|SSD-Mobilenet (TensorFlow, GPU/CPU Split)|19.43|50.00|1960|
-|SSD-Mobilenet (Movidius)*|10.11|20.90|61|
-|Mask-RCNN|Not tested|Not tested|Not tested|
-|ERFnet|7.28|19.07|2452|
-|ResNet 18-8**|todo|todo|todo|
-|ResNet 34-8**|todo|todo|todo|
+|Object Detection Models|Frames per Second| CPU % | Combined RAM (MB) | COCO mAP |
+|:---------------------:|:---------------:|:-----:|:-----------------:|:--------:|
+|SSD-Mobilenet v1 (TensorFlow)|10.01|64.38|1838|21|
+|SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|18.02|54.89|1799|21|
+|SSD-Mobilenet v1 (Movidius)*|10.08|10|247|Not Reported|
 
-*Resolution 1280x720 Measurement less accurate due to not using system tools instead of benchmarking module
+|Segmentation Models|Frames per Second| CPU % | Combined RAM (MB) | Mean IoU |
+|:-----------------:|:---------------:|:-----:|:-----------------:|:--------:|
+|Enet (PyTorch)***|13.81|39.48|2469|60.4|
+|ERFnet|7.54|23.54|2464|69.8|
+|ResNet 18-8**|3.40|13.89|2297|N/A|
+|ResNet 34-8**|1.85|13.26|2296|N/A|
 
-**Both ResNet 18 and Resnet 34 requires further optimization--it seems that too many threads were spawn during upsampling
+*Measurement less accurate due to not using system tools instead of benchmarking module
 
-**Nvidia GeForce GTX 1070; i7; 16 GB RAM; Resolution 640x480**
+**Both ResNet 18 and Resnet 34 requires changing the upsampling algorithm from bilinear interpolation to nearest neighbor for the models to run on the TX2, which will have a negative impact original reported mean IOU 
 
-|             |Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) |
-|:-----------:|:---------------:|:------------:|:-----:|:--------:|
-|SSD-Mobilenet (TensorFlow)|32.20|7289|43.75|1831|
-|SSD-Mobilenet (TensorFlow, GPU/CPU Split)|58.40|7287|56.76|1831|
-|SSD-Mobilenet (Movidius)|Not tested|Not tested|Not tested|Not tested|
-|Mask-RCNN|14.68|7281|23.53|1949|
-|ERFnet|41.29|591|35.41|2194|
-|ResNet 18-8|29.08|643|29|2035|
-|ResNet 34-8|16.17|751|22.16|2033|
+***Third party implementation
 
+**Nvidia GeForce GTX 1070 8GB GDDR5; i7 4-core 4.20 GHz; 16 GB RAM; Resolution 480x480**
+
+|Object Detection Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | COCO mAP |
+|:---------------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
+|SSD-Mobilenet v1 (TensorFlow)|32.17|363|40.25|1612|21|
+|SSD-Mobilenet v1 (TensorFlow, GPU/CPU Split)|61.97|363|58.09|1612|21|
+|SSD-Mobilenet v1 (Movidius)|8.51|0|6|57|Not Reported|
+|SSD-Mobilenet v2 (TensorFlow)|53.96|2491|35.94|1838|22|
+|Mask-RCNN Inception v2|15.86|6573|22.54|1950|25|
+|YOLOv3-320|18.91|1413|15.2|688|28.2|
+
+|Segmentation Models|Frames per Second| GPU RAM (MB) | CPU % | RAM (MB) | Mean IoU |
+|:-----------------:|:---------------:|:------------:|:-----:|:--------:|:--------:|
+|Enet (PyTorch)***|96.4|535|51.35|2185|60.4|
+|ERFnet*|63.38|549|40.01|2181|69.8|
+|ResNet 18-8*|38.85|605|31.07|2023|60.0|
+|ResNet 34-8*|21.12|713|23.29|2020|69.1|
+|MobilenetV2-DeeplabV3|4.14|1387|17.49|1530|70.71|
+
+*For some reason running python in the virtual environment for TensorFlow decreased CPU usage by 20%(!). Need to figure out why...
+
+**Measurement less accurate due to not using system tools instead of benchmarking module
+
+***Third party implementation
 
 # To-Dos
 Right now I will only focus on features I need for my project in the immediate future, but I would love to hear from you about how to make this library useful in your own workflow!
@@ -105,6 +124,7 @@ Right now I will only focus on features I need for my project in the immediate f
 - Make framework generalizable for custom models in Tensorflow and PyTorch (Model loaders)
 - Interface for sending detections (e.g. a Publisher independent of ROS)
 - Allow the user to implement manual, model-specific hacks 
+- Standardizing visualization for each task
 - multi-stick support for movidus
 - Add object tracker
 - ROS integration
@@ -126,6 +146,8 @@ Many thanks to all the sources cited below. Please feel free to contact me if yo
 - [ERFNet implementation and helper functions](https://github.com/Eromera/erfnet_pytorch)
 
 - [Image Segmentation and Object Detection in Pytorch](https://github.com/warmspringwinds/pytorch-segmentation-detection)
+
+- [ENet-PyTorch](https://github.com/bermanmaxim/Enet-PyTorch)
 
 ## Models
 "Speed/accuracy trade-offs for modern convolutional object detectors."

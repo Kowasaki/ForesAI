@@ -1,0 +1,17 @@
+{
+    "is_camera":true,
+    "device_path":0,
+    "task": "segmentation",
+    "show_stream":false,
+    "write_output":false,
+    "benchmark":true,
+    "ros_enabled":false,
+    "library":"tensorflow",
+    "model":{
+        "split_hack":false,
+        "graph_trace": false,
+        "classes": 10,
+        "model_path":"./inference_graphs/deeplabv3_mnv2_cityscapes_train/frozen_inference_graph.pb",
+        "pbtxt": "./data/cityscapes_label_map.pbtxt"
+        }
+}

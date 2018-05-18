@@ -1,6 +1,7 @@
 {
     "is_camera":true,
     "device_path":0,
+    "task": "detection",
     "show_stream":true,
     "write_output":false,
     "benchmark":false,
